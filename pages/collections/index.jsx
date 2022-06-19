@@ -53,6 +53,7 @@ const Collection = () => {
       <div className="container grid grid-cols-3 gap-4">
         {
           collections && collections?.map((collection)=>(
+            <div key={collection?.collectionId}>
             <Link key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`collections/${collection.name}`}>
               <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer">
               <div className="flex">
@@ -101,6 +102,7 @@ const Collection = () => {
               </div>
               </div>
             </Link>
+            </div>
           ))
         }
       </div>

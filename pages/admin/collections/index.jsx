@@ -32,7 +32,7 @@ const Collections = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div>
-      <table class="table-auto">
+      <table className="table-auto">
         <thead>
           <tr>
             <th className='w-20'>logo</th>
@@ -45,7 +45,7 @@ const Collections = () => {
         </thead>
         <tbody>
           {collections && collections.map((collection)=>(
-            <tr>
+            <tr key={collection.collectionId}>
               <td><img src={collection.logo} alt={collection.name}/></td>
               <td><img src={collection.banner} alt={collection.name}/></td>
               <td>{collection.name}</td>

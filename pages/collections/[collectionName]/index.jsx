@@ -35,8 +35,8 @@ const CollectionDetail = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {collection && 
-      <div class="">
-        <div class="relative ...">
+      <div className="">
+        <div className="relative ...">
           <div className='h-96 overflow-hidden flex items-center'>
           {collection.logo?   
               <div className='w-full'>
@@ -46,7 +46,7 @@ const CollectionDetail = () => {
               </div>
               }
               </div>
-          <div class="absolute bottom-0 left-0 ...">
+          <div className="absolute bottom-0 left-0 ...">
             <div className='w-full h-full'>
               {collection.logo && 
                 <img className='w-9/12 m-auto' src={collection.logo} alt={collection.name}/>

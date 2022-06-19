@@ -9,7 +9,12 @@ const nextConfig = {
     REACT_APP_ALCHEMY_URL: process.env.REACT_APP_ALCHEMY_URL,
     CONTRACT_ADDRESS: process.env.CONTRACT_ADDRESS,
     API_URL: process.env.API_URL,
-  }
+  },
+  eslint: {
+    // Warning: This allows production builds to successfully complete even if
+    // your project has ESLint errors.
+    ignoreDuringBuilds: true,
+  },
 }
 
 module.exports = nextConfig
