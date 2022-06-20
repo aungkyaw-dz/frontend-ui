@@ -91,7 +91,7 @@ const Profile = () => {
     setImg(files[0])
     setImgUrl(URL.createObjectURL(files[0]))
   }
-
+  console.log("data")
   return(
     <div className="container mx-auto">
       <Head>
