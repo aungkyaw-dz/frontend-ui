@@ -16,6 +16,7 @@ const SingleCreate = () => {
   const [metaData, setMetaData] = useState(null)
   const [nftId, setNftId] = useState(null)
   const { data: account } = useAccount()
+  const [status, setStatus] = useState(null)
   const contractAddress = process.env.CONTRACT_ADDRESS;
   const API_URL = process.env.API_URL;
   const web3 = createAlchemyWeb3(API_URL);
@@ -51,6 +52,7 @@ const SingleCreate = () => {
 
   useEffect(()=>{
     if(metaData && !txData){
+      setStatus("Minting")
       sendTransaction()
     }
   },[metaData])
@@ -67,6 +69,7 @@ const SingleCreate = () => {
         const nftRes = await axios.post(`${API_URL}/nfts/update/${nftId}`, updateData)
         if(nftRes){
           alert("complete")
+          setStatus(null)
           setMetaData(null)
         }
       }
@@ -85,7 +88,7 @@ const SingleCreate = () => {
     },
     onSubmit: async (values) => {
       console.log("ddd")
-
+      setStatus("Creating MetaData")
       if(account){
         values.creator = account.address
         values.owner = account.address
@@ -246,6 +249,7 @@ const SingleCreate = () => {
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
             Create New NFT
           </button>
+          {status && (<div>{status}</div>)}
         </div>
       </form>
     </div>

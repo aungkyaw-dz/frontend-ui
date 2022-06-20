@@ -54,11 +54,13 @@ const Navbar = () => {
                             My Collections
                         </a>
                     </Link>
-                    <Link href='/profile'>
+                    {data && (
+                        <Link href='/profile'>
                         <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
                             profile
                         </a>
-                    </Link>
+                        </Link>
+                    )}
                     <ConnectButton className="shadow-md" chainStatus="none" accountStatus="avatar" showBalance={false}/>
                 </div>
             </div>
