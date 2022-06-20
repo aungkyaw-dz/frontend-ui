@@ -15,12 +15,7 @@ const Navbar = () => {
             getUser()
             }
     },[data?.address])
-    console.log(data)
-    console.log("data")
-    console.log("data")
-    console.log("data")
-    console.log("data")
-    console.log("data")
+
     return(
         <nav className='flex items-center flex-wrap bg-transparent p-10 '>
             <Link href='/123'>
