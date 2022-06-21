@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { CreateMetaData } from '../../../utils/pinata';
 import { useAccount, useSendTransaction, useConnect } from 'wagmi';
 import axios from 'axios';
+import { Dropdown } from 'flowbite-react';
+
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
 const contractABI = require('../../../UrbanTechNFT.json')
@@ -20,10 +22,19 @@ const SingleCreate = () => {
   const contractAddress = process.env.CONTRACT_ADDRESS;
   const API_URL = process.env.API_URL;
   const web3 = createAlchemyWeb3(API_URL);
+  const [collections, setCollections] = useState(null)
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
-
+    const getCollections = async () => {
+      const resData = await axios.get(`${API_URL}/collections/list`)
+      if(resData){
+        setCollections(resData.data.data)
+      }
+    } 
+    getCollections()
   },[])
+
+  
 
   const transactionParameters = {
       to: contractAddress,
@@ -83,29 +94,31 @@ const SingleCreate = () => {
       link: '',
       description: '',
       price: 0,
+      collectionId: "",
       collectionName: '',
       collectionDesc: ''
     },
     onSubmit: async (values) => {
       console.log("ddd")
       setStatus("Creating MetaData")
-      if(account){
-        values.creator = account.address
-        values.owner = account.address
-        const formData = new FormData()
-        for ( var key in values ) {
-          formData.append(key, values[key]);
-        }
-        formData.append("logo", img)
-        const nftRes = await axios.post(`${API_URL}/nfts/create`, formData)
-        setNftId(nftRes.data.data.nftId)
-        const resData = await CreateMetaData(img, values)
-        if(resData.success){
-          setMetaData(resData.url)
-        }
-      }else{
-        alert("Please Connect Wallet")
-      }
+      console.log(values)
+      // if(account){
+      //   values.creator = account.address
+      //   values.owner = account.address
+      //   const formData = new FormData()
+      //   for ( var key in values ) {
+      //     formData.append(key, values[key]);
+      //   }
+      //   formData.append("logo", img)
+      //   const nftRes = await axios.post(`${API_URL}/nfts/create`, formData)
+      //   setNftId(nftRes.data.data.nftId)
+      //   const resData = await CreateMetaData(img, values)
+      //   if(resData.success){
+      //     setMetaData(resData.url)
+      //   }
+      // }else{
+      //   alert("Please Connect Wallet")
+      // }
     },
     validationSchema: yup.object({
       title: yup.string().trim().required('Name is required'),
@@ -184,30 +197,58 @@ const SingleCreate = () => {
             onBlur={formik.handleBlur}
             placeholder="nft title"/>
         </div>
+        {!collections &&
         <div className="mb-4 ">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-            Collection Name
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="collectionId">
+            Collections
           </label>
-          <input className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline" 
-            id="collectionName" 
-            name='collectionName'
-            value={formik.values.collectionName}
+          <select 
+            id="collectionId" 
+            name="collectionId" 
+            value={formik.values.collectionId} 
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder="Collection name"/>
+            className="shadow appearance-none border w-full rounded ">
+            <option value="" disabled>Collection List</option>
+
+            {collections?.map((collection)=>(
+              <>
+                <option value={collection.collectionId}>{collection.name}</option>
+              </>
+            )
+            )}
+              <option value="create">Create New Collection</option>
+          </select>
         </div>
-        <div className="mb-4 ">
-          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-            Collection Description
-          </label>
-          <input className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline" 
-            id="collectionDesc" 
-            name='collectionDesc'
-            value={formik.values.collectionDesc}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            placeholder="Collection Description"/>
-        </div>
+        }
+        {formik.values.collectionId == "create" && 
+          <>
+          <div className="mb-4 ">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+              Collection Name
+            </label>
+            <input className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline" 
+              id="collectionName" 
+              name='collectionName'
+              value={formik.values.collectionName}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Collection name"/>
+          </div>
+          <div className="mb-4 ">
+            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
+              Collection Description
+            </label>
+            <input className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline" 
+              id="collectionDesc" 
+              name='collectionDesc'
+              value={formik.values.collectionDesc}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              placeholder="Collection Description"/>
+          </div>
+          </>
+        }
         <div className="mb-4 ">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
             External Link
@@ -249,6 +290,9 @@ const SingleCreate = () => {
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
             Create New NFT
           </button>
+          
+        </div>
+        <div className='text-left'>
           {status && (<div>{status}</div>)}
         </div>
       </form>

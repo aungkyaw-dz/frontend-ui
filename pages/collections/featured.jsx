@@ -4,14 +4,14 @@ import axios from "axios";
 import Link from 'next/link'
 import { useFormik } from "formik";
 
-const Collection = () => {
+const Featured = () => {
   const [collections, setCollections] = useState(null);
   const [query, setQuery] = useState("");
   const API_URL = process.env.API_URL
 
   useEffect(()=>{
     const getCollections = async () => {
-      const res = await axios.get(`${API_URL}/collections/list`, {params: query})
+      const res = await axios.get(`${API_URL}/collections/featured`, {params: query})
       setCollections(res.data.data)
     }
     getCollections()
@@ -34,7 +34,7 @@ const Collection = () => {
         <meta name="description" content="List of Nfts" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <h1 className='text-4xl font-bold p-5'>EXPLORE COLLECTIONS</h1>
+      <h1 className='text-4xl font-bold p-5'>EXPLORE FEATURED COLLECTIONS</h1>
       <form className="w-1/2 flex px-8 " onSubmit={formik.handleSubmit}>
         <input className="shadow appearance-none border w-full rounded  py-2 px-3 mr-5 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
               id="name" 
@@ -111,4 +111,4 @@ const Collection = () => {
 
 }
 
-export default Collection
+export default Featured
