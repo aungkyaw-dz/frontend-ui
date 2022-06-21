@@ -8,7 +8,7 @@ import { useAccount } from 'wagmi';
 const CollectionDetail = () => {
   const {data:account}= useAccount()
   const [collections, setCollections] = useState(null);
-  
+  const API_URL = process.env.API_URL
   useEffect(()=>{
     const getCollection = async () => {
       try{
@@ -23,7 +23,6 @@ const CollectionDetail = () => {
    }
     getCollection()
   },[account])
-  console.log(collections)
   return(
     <div className="container mx-auto">
       <Head>

@@ -99,7 +99,7 @@ const Profile = () => {
         <meta name="description" content="My Profile" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <h1 className='text-4xl font-bold p-5'>My Prifile</h1>
+      <h1 className='text-4xl font-bold p-5'>My Profile</h1>
       <div className="w-1/3 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
         onDragEnter={(e) => handleDragEnter(e)}
         onDragOver={(e) => handleDragOver(e)}

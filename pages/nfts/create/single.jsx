@@ -3,9 +3,10 @@ import { Field, useFormik } from 'formik';
 import * as yup from 'yup';
 import { useEffect, useState } from 'react';
 import { CreateMetaData } from '../../../utils/pinata';
-import { useAccount, useSendTransaction, useConnect } from 'wagmi';
+import { useAccount, useSendTransaction, useConnect, useWaitForTransaction } from 'wagmi';
 import axios from 'axios';
 import { Dropdown } from 'flowbite-react';
+import Link from 'next/link';
 
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
@@ -23,6 +24,7 @@ const SingleCreate = () => {
   const API_URL = process.env.API_URL;
   const web3 = createAlchemyWeb3(API_URL);
   const [collections, setCollections] = useState(null)
+  const [ready, setReady] = useState(false)
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
     const getCollections = async () => {
@@ -33,8 +35,6 @@ const SingleCreate = () => {
     } 
     getCollections()
   },[])
-
-  
 
   const transactionParameters = {
       to: contractAddress,
@@ -57,32 +57,46 @@ const SingleCreate = () => {
 
   const mintNft = () =>{
     if(metaData){
-      sendTransaction()
+      try{
+        sendTransaction()
+      }catch(err){
+        console.log(err)
+        setStatus("Error")
+      }
     }
   }
 
   useEffect(()=>{
     if(metaData && !txData){
-      setStatus("Minting")
-      sendTransaction()
+      try{
+        setStatus("Minting")
+        sendTransaction()
+      }catch(err){
+        console.log(err)
+        setStatus("Error")
+      }
     }
   },[metaData])
 
   useEffect(()=>{
     const createNft = async() =>{
-      if(txData && metaData){
-        const updateData = {
-          tokenUri: metaData,
-          txid: txData.hash,
-          status: "MINTED",
+      try{
+        if(txData && metaData){
+          const updateData = {
+            tokenUri: metaData,
+            txid: txData.hash,
+            status: "MINTED",
+          }
+          const nftRes = await axios.post(`${API_URL}/nfts/update/${nftId}`, updateData)
+          if(nftRes){
+            setStatus(null)
+            setMetaData(null)
+            setReady(true)
+          }
         }
-        console.log(updateData)
-        const nftRes = await axios.post(`${API_URL}/nfts/update/${nftId}`, updateData)
-        if(nftRes){
-          alert("complete")
-          setStatus(null)
-          setMetaData(null)
-        }
+      }catch(err){
+        setStatus("Error")
+        console.log(err)
       }
     }
     createNft()
@@ -99,26 +113,29 @@ const SingleCreate = () => {
       collectionDesc: ''
     },
     onSubmit: async (values) => {
-      console.log("ddd")
-      setStatus("Creating MetaData")
-      console.log(values)
-      // if(account){
-      //   values.creator = account.address
-      //   values.owner = account.address
-      //   const formData = new FormData()
-      //   for ( var key in values ) {
-      //     formData.append(key, values[key]);
-      //   }
-      //   formData.append("logo", img)
-      //   const nftRes = await axios.post(`${API_URL}/nfts/create`, formData)
-      //   setNftId(nftRes.data.data.nftId)
-      //   const resData = await CreateMetaData(img, values)
-      //   if(resData.success){
-      //     setMetaData(resData.url)
-      //   }
-      // }else{
-      //   alert("Please Connect Wallet")
-      // }
+      try{
+
+        setStatus("Creating MetaData")
+        if(account){
+          values.creator = account.address
+          values.owner = account.address
+          const formData = new FormData()
+          for ( var key in values ) {
+            formData.append(key, values[key]);
+          }
+          formData.append("logo", img)
+          const nftRes = await axios.post(`${API_URL}/nfts/create`, formData)
+          setNftId(nftRes.data.data.nftId)
+          const resData = await CreateMetaData(img, values)
+          if(resData.success){
+            setMetaData(resData.url)
+          }
+        }else{
+          alert("Please Connect Wallet")
+        }
+      }catch(err){
+        setStatus("Error")
+      }
     },
     validationSchema: yup.object({
       title: yup.string().trim().required('Name is required'),
@@ -197,7 +214,6 @@ const SingleCreate = () => {
             onBlur={formik.handleBlur}
             placeholder="nft title"/>
         </div>
-        {!collections &&
         <div className="mb-4 ">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="collectionId">
             Collections
@@ -212,15 +228,12 @@ const SingleCreate = () => {
             <option value="" disabled>Collection List</option>
 
             {collections?.map((collection)=>(
-              <>
-                <option value={collection.collectionId}>{collection.name}</option>
-              </>
+              <option value={collection.collectionId} key={collection.collectionId}>{collection.name}</option>
             )
             )}
               <option value="create">Create New Collection</option>
           </select>
         </div>
-        }
         {formik.values.collectionId == "create" && 
           <>
           <div className="mb-4 ">
@@ -294,6 +307,9 @@ const SingleCreate = () => {
         </div>
         <div className='text-left'>
           {status && (<div>{status}</div>)}
+          {ready && (
+            <Link className='text-blue-600 hover:text-blue-800 visited:text-purple-600' href={`/nfts/${nftId}`}>Please check your nft on here</Link>
+          )}
         </div>
       </form>
     </div>

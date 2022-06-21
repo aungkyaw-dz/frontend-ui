@@ -54,7 +54,7 @@ const NftDetail = () => {
             "id":0
         }
         const receipt = await axios.post("https://polygon-mumbai.g.alchemy.com/v2/frVV_vKK1_Pf-JkOiqzzn3L9Z9RSKNh1", requestData)
-        const tokenId = web3.utils.hexToNumber(receipt.data.result.logs[0].topics[3])
+        const tokenId = web3.utils.hexToNumber(receipt.data.result?.logs[0].topics[3])
         console.log(receipt)
         const updateData = {
           tokenId: tokenId
