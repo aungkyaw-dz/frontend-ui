@@ -44,7 +44,7 @@ const Navbar = () => {
                         Collections
                     </a>
                     </Link>
-                    <Link href='/nfts/create/single'>
+                    <Link href='/nfts/create'>
                         <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
                             Create NFT
                         </a>
@@ -55,11 +55,19 @@ const Navbar = () => {
                         </a>
                     </Link>
                     {data && (
-                        <Link href='/profile'>
+                        <>
+                        <Link href='/nfts/create/pending'>
                         <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
-                            profile
+                            Pending NFTs
                         </a>
                         </Link>
+                        <Link href='/profile'>
+                        <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
+                            Profile
+                        </a>
+                        </Link>
+                        
+                        </>
                     )}
                     <ConnectButton className="shadow-md" chainStatus="none" accountStatus="avatar" showBalance={false}/>
                 </div>

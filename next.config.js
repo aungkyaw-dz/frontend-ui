@@ -15,6 +15,9 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  images: {
+    domains: ['ik.imagekit.io'],
+  },
 }
 
 module.exports = nextConfig

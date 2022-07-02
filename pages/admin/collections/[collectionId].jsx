@@ -5,9 +5,9 @@ import Head from "next/head";
 import Link from 'next/link';
 import { Field, useFormik } from 'formik';
 
-const CollectionUpdate = () => {
+const CollectionDetail = () => {
   const router = useRouter()
-  const { collectionName } = router.query
+  const { collectionId } = router.query
   const API_URL = process.env.API_URL
 
   const [collection, setCollection] = useState(null);
@@ -19,9 +19,12 @@ const CollectionUpdate = () => {
     initialValues: {
       name: '',
       description: '',
+      featured: false,
+      favourite: false
     },
     onSubmit: async (values) => {
       let formData = new FormData();
+      console.log(values)
       if(logo){
         formData.append("logo", logo);
       }
@@ -30,17 +33,19 @@ const CollectionUpdate = () => {
       }
       formData.append("name", values.name);
       formData.append("description", values.description);
+      formData.append("favourite", values.favourite);
+      formData.append("featured", values.featured);
       try{
 
-        const collectionRes = await axios.post(`${API_URL}/collections/update/${collection.name}`, 
+        const collectionRes = await axios.post(`${API_URL}/collections/update/${collection.collectionId}`, 
                                       formData, 
                                       {headers: {
                                         'Content-Type': `multipart/form-data;`,
                                       }}
                                     )
         if(collectionRes){
-          const name = collectionRes.data.data.name
-          router.push(`/collections/${name}`)
+          const collectionId = collectionRes.data.data.collectionId
+          router.push(`/collections/${collectionId}`)
         }
       } catch (err){
         console.log(err)
@@ -53,8 +58,8 @@ const CollectionUpdate = () => {
   useEffect(()=>{
     const getCollection = async () => {
       try{
-        if(collectionName){
-          const res = await axios.get(`${API_URL}collections/${collectionName}`)
+        if(collectionId){
+          const res = await axios.get(`${API_URL}/collections/${collectionId}`)
           setCollection(res.data.data)
           formik.setValues(res.data.data)
           setBannerUrl(res.data.data.banner)
@@ -66,7 +71,7 @@ const CollectionUpdate = () => {
       }
    }
     getCollection()
-  },[collectionName])
+  },[collectionId])
 
   const uploadLogo =  (e) => {
     if(e.target.files && e.target.files[0]){
@@ -174,7 +179,30 @@ const CollectionUpdate = () => {
               onChange={(e)=> uploadBanner(e)}
             />
         </div>
-
+        <label className="md:w-2/3 block text-gray-500 font-bold">
+          <input className="mr-2 leading-tight" type="checkbox"
+            id="featured" 
+            name='featured'
+            checked={formik.values.featured}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            />
+          <span className="text-sm">
+            Featured
+          </span>
+        </label>
+        <label className="md:w-2/3 block text-gray-500 font-bold">
+          <input className="mr-2 leading-tight" type="checkbox"
+            id="favourite" 
+            name='favourite'
+            checked={formik.values.favourite}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            />
+          <span className="text-sm">
+            Favourite
+          </span>
+        </label>
         <div className="flex items-center justify-start">
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
             Update Collection 
@@ -186,4 +214,4 @@ const CollectionUpdate = () => {
   )
 }
 
-export default CollectionUpdate
+export default CollectionDetail

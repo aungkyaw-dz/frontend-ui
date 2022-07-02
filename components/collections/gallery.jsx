@@ -67,6 +67,7 @@ export default function Gallery({collections, name}) {
           Explore More
         </Link>
       </div>
+      <hr className='m-5'/>
       </div>
 
   )

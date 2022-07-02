@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 const CollectionDetail = () => {
   const router = useRouter()
-  const { collectionName } = router.query
+  const { collectionId } = router.query
   const API_URL = process.env.API_URL
 
   const [collection, setCollection] = useState(null);
@@ -14,8 +14,8 @@ const CollectionDetail = () => {
   useEffect(()=>{
     const getCollection = async () => {
       try{
-        if(collectionName){
-          const res = await axios.get(`${API_URL}/collections/${collectionName}`)
+        if(collectionId){
+          const res = await axios.get(`${API_URL}/collections/${collectionId}`)
           console.log(res)
           setCollection(res.data.data)
         }
@@ -25,7 +25,7 @@ const CollectionDetail = () => {
       }
    }
     getCollection()
-  },[collectionName])
+  },[collectionId])
   console.log(collection)
   return(
     <div className="container mx-auto">
@@ -90,7 +90,7 @@ const CollectionDetail = () => {
                     />
                   </div>
                   <h3 className="text-5xl text-gray-700  p-2">
-                    {nft.title}
+                    {nft.name}
                   </h3>
                   <h3 className="text-lg text-gray-500  p-2">
                     {nft.description}

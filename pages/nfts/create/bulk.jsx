@@ -2,8 +2,8 @@ import Head from 'next/head'
 import { Field, useFormik } from 'formik';
 import * as yup from 'yup';
 import { useEffect, useState } from 'react';
-import { CreateMetaData } from '../../../utils/pinata';
-import { useAccount, useSendTransaction, useConnect, useWaitForTransaction } from 'wagmi';
+import { createBulkMetaData } from '../../../utils/pinata';
+import { useAccount, useSendTransaction, useConnect, useWaitForTransaction, useSigner } from 'wagmi';
 import axios from 'axios';
 import { Dropdown } from 'flowbite-react';
 import Link from 'next/link';
@@ -13,9 +13,10 @@ const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
 const contractABI = require('../../../UrbanTechNFT.json')
 
-const SingleCreate = () => {
-  const [img, setImg] = useState()
-  const [imgUrl, setImgUrl] = useState(DefaultImage.src)
+const BulkCreate = () => {
+  const { data: signer, isError, isLoading } = useSigner()
+  const [images, setImages] = useState()
+  const [imgUrl, setImgUrl] = useState()
   const [metaData, setMetaData] = useState(null)
   const [nftId, setNftId] = useState(null)
   const { data: account } = useAccount()
@@ -42,6 +43,7 @@ const SingleCreate = () => {
       from: account?.address,
       'data': metaData? window.contract.methods.mint(metaData).encodeABI(): ""
   };
+
   const { data: txData, sendTransaction } =
           useSendTransaction({
           request: transactionParameters,
@@ -55,17 +57,6 @@ const SingleCreate = () => {
               }
             },
           })
-
-  const mintNft = () =>{
-    if(metaData){
-      try{
-        sendTransaction()
-      }catch(err){
-        console.log(err)
-        setStatus("Error")
-      }
-    }
-  }
 
   useEffect(()=>{
     if(metaData && !txData){
@@ -108,7 +99,6 @@ const SingleCreate = () => {
       link: '',
       description: '',
       price: 0,
-      type: '',
       collectionId: "",
       collectionName: '',
       collectionDesc: ''
@@ -124,13 +114,11 @@ const SingleCreate = () => {
           for ( var key in values ) {
             formData.append(key, values[key]);
           }
-          formData.append("logo", img)
-          const nftRes = await axios.post(`${API_URL}/nfts/create`, formData)
-          setNftId(nftRes.data.data.nftId)
-          const resData = await CreateMetaData(img, values)
-          if(resData.success){
-            setMetaData(resData.url)
+          for (let i = 0; i < images.length; i++) {
+            formData.append("files", images[i])
           }
+          const nftRes = await axios.post(`${API_URL}/nfts/bulkCreate`, formData)
+          setStatus("upload")
         }else{
           alert("Please Connect Wallet")
         }
@@ -146,7 +134,7 @@ const SingleCreate = () => {
 
   const uploadImg =  (e) => {
     if(e.target.files && e.target.files[0]){
-      setImg(e.target.files[0])
+      setImages(e.target.files)
       setImgUrl(URL.createObjectURL(e.target.files[0]))
     }
   }
@@ -174,33 +162,42 @@ const SingleCreate = () => {
     setImg(files[0])
     setImgUrl(URL.createObjectURL(files[0]))
   }
-
+  console.log(images)
 
   return(
     <div className="container mx-auto">
       <Head>
-        <title>Create A New NFT</title>
+        <title>Create Multiple NFT</title>
         <meta name="description" content="create a new nft" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1 className='text-4xl font-bold p-5'>Create single item</h1>
       <p className='text-lg p-5 lg:w-2/5'>
-        Image, Video, Audio, or 3D Model. File types supported: JPG, PNG, GIF,
-        SVG, MP4, WEBM, MP3, WAV, OGG, GLB, GLTF. Max size: 100 MB
+        To Create Multiple Nfts, you need to upload multiple image and wait untils its ready to mint. You can check pending 
+        list on <a href='pending'>here!!!</a>
       </p>
-      <div className="lg:w-1/3 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 "
+      <div className="lg:w-1/3 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
         onDragEnter={(e) => handleDragEnter(e)}
         onDragOver={(e) => handleDragOver(e)}
         onDragLeave={(e) => handleDragLeave(e)}
         onDrop={(e) => handleDrop(e)}
        >
-        <div className='p-1 m-2'>
-          {imgUrl && <img src={imgUrl} alt='preview'/>}
+        <div className='grid gap-4 grid-cols-5 p-5'>
+          {images? Array.from(images).map((image)=>(
+              <div>
+                <img  className='w-20 max-w-none' src={URL.createObjectURL(image)} alt='preview'/>
+              </div>
+            )):
+            <img src={DefaultImage.src} alt='preview'/>
+          }
         </div>
 
         <input
             id="fileSelect"
             type="file"
+            multiple
+            accept="*/png"
+            webkitdirectory="true"
             onChange={(e)=> uploadImg(e)}
           />
       </div>
@@ -321,21 +318,17 @@ const SingleCreate = () => {
         }
         <div className="flex items-center justify-start">
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
-            Create New NFT
+            Upload Metadatas for NFTs
           </button>
-          
         </div>
-        <div className='text-left'>
-          {status && (<div>{status}</div>)}
-          {ready && (
-            <div className='underline p-2 text-blue-600 hover:text-blue-800 visited:text-purple-600'>
-              <Link  href={`/nfts/${nftId}`}>Please check your nft on here</Link>
-            </div>
-          )}
-        </div>
+        {status == 'upload' && 
+          <div>
+            Uploading the images, Please check you NFTs status and Mint NFTs in <a href='pending'>here!</a>
+          </div>
+        }
       </form>
     </div>
   )
 }
 
-export default SingleCreate
+export default BulkCreate

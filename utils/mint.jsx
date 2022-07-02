@@ -10,7 +10,7 @@ export const SingleMint = async (file, data) => {
   try{
 
     const createData = {
-      title: data.name,
+      name: data.name,
       description: data.description,
       price: data.price,
       collectionName: data.collectionName,

@@ -57,6 +57,7 @@ function MyApp({ Component, pageProps }) {
   
   const wagmiClient = createClient({
     autoConnect: true,
+    chains,
     connectors,
     provider
   })
