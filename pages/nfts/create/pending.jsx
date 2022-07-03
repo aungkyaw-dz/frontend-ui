@@ -11,7 +11,8 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   TableInstance,
-  useTableInstance,
+  flexRender,
+  useReactTable,
 } from '@tanstack/react-table'
 
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
@@ -36,7 +37,7 @@ const IndeterminateCheckbox =({indeterminate, className = '', ...rest})=> {
   )
 }
 
-const MyNftList = () => {
+const PendingNFTs = () => {
   const {data:account}= useAccount()
   const [nfts, setNfts] = useState([]);
   const [status, setStatus] = useState(null);
@@ -50,13 +51,12 @@ const MyNftList = () => {
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
   },[])
 
-  const table = createTable()
 
   useEffect(()=>{
     const getNfts = async () => {
       try{
         if(account){
-          const res = await axios.get(`${API_URL}/nfts/get-by-user/${account.address}?status=PENDING`)
+          const res = await axios.get(`${API_URL}/nfts/get-by-user/${account.address}?status=READY`)
           setNfts(res.data.data)
         }
       }
@@ -82,15 +82,15 @@ const MyNftList = () => {
   },[rowSelection])
   const columns = useMemo(
     () => [
-      table.createDisplayColumn({
+      {
         id: 'select',
-        header: ({instance}) =>{ 
+        header: ({table}) =>{ 
         return (
           <IndeterminateCheckbox
             {...{
-              checked: instance.getIsAllRowsSelected(),
-              indeterminate: instance.getIsSomeRowsSelected(),
-              onChange: instance.getToggleAllRowsSelectedHandler(),
+              checked: table.getIsAllRowsSelected(),
+              indeterminate: table.getIsSomeRowsSelected(),
+              onChange: table .getToggleAllRowsSelectedHandler(),
             }}
           />
         )},
@@ -107,28 +107,33 @@ const MyNftList = () => {
             </div>
           )
         },
-      }),
-      table.createDataColumn('logo', {
+      },
+      {
+        accessorKey: 'logo',
         cell: info => <Image src={info.getValue()} width={100} height={100}/>,
         footer: props => props.column.id,
-      }),
-      table.createDataColumn('name', {
+      },
+      {
+        accessorKey: 'name',
         cell: info => info.getValue(),
         footer: props => props.column.id,
-      }),
-      table.createDataColumn(row => row.Collection.name,{
+      },
+      {
+        accessorFn: row => row.Collection.name,
         id: "Collection Name",
+        header: () => <span>Collection Name</span>,
         cell: info => info.getValue(),
         footer: props => props.column.id,
-      }),
-      table.createDataColumn('status', {
+      },
+      {
+        accessorKey: 'status',
         cell: info => info.getValue(),
         footer: props => props.column.id,
-      }),
+      },
     ],
     []
   );
-  const instance = useTableInstance(table, {
+  const table = useReactTable( {
     data: nfts,
     columns,
     state: {
@@ -136,10 +141,10 @@ const MyNftList = () => {
     },
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
-    debugTable: false,
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    debugTable: true,
   })
-
-  console.log(instance)
 
   const transactionParameters = {
     to: contractAddress,
@@ -214,14 +219,17 @@ const MyNftList = () => {
         <div className="h-2" />
         <table>
           <thead>
-            {instance.getHeaderGroups().map(headerGroup => (
+            {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map(header => {
                   return (
                     <th key={header.id} colSpan={header.colSpan} className="p-5 m-5">
                       {header.isPlaceholder ? null : (
                         <>
-                          {header.renderHeader()}
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                         </>
                       )}
                     </th>
@@ -231,11 +239,17 @@ const MyNftList = () => {
             ))}
           </thead>
           <tbody>
-          {instance.getRowModel().rows.map(row => {
+          {table.getRowModel().rows.map(row => {
             return (
               <tr key={row.id}>
                 {row.getVisibleCells().map(cell => {
-                  return <td key={cell.id} className="text-center">{cell.renderCell()}</td>
+                  return <td key={cell.id} className="text-center">
+                            {
+                              flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </td>
                 })}
               </tr>
             )
@@ -251,4 +265,4 @@ const MyNftList = () => {
   )
 }
 
-export default MyNftList
+export default PendingNFTs

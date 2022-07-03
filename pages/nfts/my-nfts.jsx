@@ -11,13 +11,12 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   TableInstance,
-  useTableInstance,
+  flexRender,
+  useReactTable,
 } from '@tanstack/react-table'
 
-import Table from '../../components/nfts/table';
-
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
-const contractABI = require('../../UrbanTechNFT.json')
+const contractABI = require('../../../UrbanTechNFT.json')
 
 const IndeterminateCheckbox =({indeterminate, className = '', ...rest})=> {
   const ref = useRef(null)
@@ -52,13 +51,12 @@ const MyNftList = () => {
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
   },[])
 
-  const table = createTable()
 
   useEffect(()=>{
     const getNfts = async () => {
       try{
         if(account){
-          const res = await axios.get(`${API_URL}/nfts/get-by-user/${account.address}`)
+          const res = await axios.get(`${API_URL}/nfts/get-by-user/${account.address}?status=PENDING`)
           setNfts(res.data.data)
         }
       }
@@ -84,15 +82,15 @@ const MyNftList = () => {
   },[rowSelection])
   const columns = useMemo(
     () => [
-      table.createDisplayColumn({
+      {
         id: 'select',
-        header: ({instance}) =>{ 
+        header: ({table}) =>{ 
         return (
           <IndeterminateCheckbox
             {...{
-              checked: instance.getIsAllRowsSelected(),
-              indeterminate: instance.getIsSomeRowsSelected(),
-              onChange: instance.getToggleAllRowsSelectedHandler(),
+              checked: table.getIsAllRowsSelected(),
+              indeterminate: table.getIsSomeRowsSelected(),
+              onChange: table .getToggleAllRowsSelectedHandler(),
             }}
           />
         )},
@@ -109,28 +107,33 @@ const MyNftList = () => {
             </div>
           )
         },
-      }),
-      table.createDataColumn('logo', {
+      },
+      {
+        accessorKey: 'logo',
         cell: info => <Image src={info.getValue()} width={100} height={100}/>,
         footer: props => props.column.id,
-      }),
-      table.createDataColumn('name', {
+      },
+      {
+        accessorKey: 'name',
         cell: info => info.getValue(),
         footer: props => props.column.id,
-      }),
-      table.createDataColumn(row => row.Collection.name,{
+      },
+      {
+        accessorFn: row => row.Collection.name,
         id: "Collection Name",
+        header: () => <span>Collection Name</span>,
         cell: info => info.getValue(),
         footer: props => props.column.id,
-      }),
-      table.createDataColumn('status', {
+      },
+      {
+        accessorKey: 'status',
         cell: info => info.getValue(),
         footer: props => props.column.id,
-      }),
+      },
     ],
     []
   );
-  const instance = useTableInstance(table, {
+  const table = useReactTable( {
     data: nfts,
     columns,
     state: {
@@ -181,14 +184,20 @@ const MyNftList = () => {
         const tokenId = web3.utils.hexToNumber(wait?.logs[index].topics[3])
         const update = {
           nftId: nfts[row].nftId,
-          tokenId: tokenId
+          tokenId: tokenId,
+          txid: txData?.hash,
+          status: "MINTED"
         }
         updateDetails = [...updateDetails, update]
       })
       if(wait){
         const updateNft = async() => {
-          const resData = await axios.post(`${API_URL}/nfts/bulkUpdate/`, updateDetails)
+          const resData = await axios.post(`${API_URL}/nfts/bulkUpdate/`, {updateList: updateDetails})
+          if(!resData.error){
+            setRowSelection({})
+          }
         }
+        updateNft()
       }
     }
     updateTokenId()
@@ -201,23 +210,26 @@ const MyNftList = () => {
         <meta name="description" content="List of Nfts" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <h1 className='text-4xl font-bold p-5'>My NFTs</h1>
+      <h1 className='text-4xl font-bold p-5'>Pending NFTs</h1>
       {!account && (
         <h1 className='text-lg text-red-500'>Please Connect Wallet to show you NFTs !!!</h1>
       )}
       <div className="p-2">
-        <button onClick={bulkMint}>Bulk Mint</button>
+        <button className='m-5 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded' onClick={bulkMint}>Bulk Mint</button>
         <div className="h-2" />
         <table>
           <thead>
-            {instance.getHeaderGroups().map(headerGroup => (
+            {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id}>
                 {headerGroup.headers.map(header => {
                   return (
-                    <th key={header.id} colSpan={header.colSpan} className="p-5">
+                    <th key={header.id} colSpan={header.colSpan} className="p-5 m-5">
                       {header.isPlaceholder ? null : (
                         <>
-                          {header.renderHeader()}
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
                         </>
                       )}
                     </th>
@@ -227,11 +239,17 @@ const MyNftList = () => {
             ))}
           </thead>
           <tbody>
-          {instance.getRowModel().rows.map(row => {
+          {table.getRowModel().rows.map(row => {
             return (
               <tr key={row.id}>
                 {row.getVisibleCells().map(cell => {
-                  return <td key={cell.id}>{cell.renderCell()}</td>
+                  return <td key={cell.id} className="text-center">
+                            {
+                              flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
+                          </td>
                 })}
               </tr>
             )
