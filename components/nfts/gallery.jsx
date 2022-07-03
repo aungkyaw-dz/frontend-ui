@@ -10,7 +10,7 @@ export default function Gallery({nfts, name}) {
         {
           nfts && nfts?.map((nft)=>(
             <div key={nft?.nftId}>
-            <Link key={nft?.nftId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`nfts/${nft.name}`}>
+            <Link key={nft?.nftId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`nfts/${nft.nftId}`}>
               <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer">
               <div className="flex">
                 <div className="w-32 p-5">
