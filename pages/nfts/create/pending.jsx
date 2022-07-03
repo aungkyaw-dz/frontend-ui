@@ -136,10 +136,10 @@ const MyNftList = () => {
     },
     onRowSelectionChange: setRowSelection,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     debugTable: false,
   })
+
+  console.log(instance)
 
   const transactionParameters = {
     to: contractAddress,
