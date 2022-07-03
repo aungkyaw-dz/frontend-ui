@@ -16,7 +16,7 @@ import {
 } from '@tanstack/react-table'
 
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
-const contractABI = require('../../../UrbanTechNFT.json')
+const contractABI = require('../../UrbanTechNFT.json')
 
 const IndeterminateCheckbox =({indeterminate, className = '', ...rest})=> {
   const ref = useRef(null)
