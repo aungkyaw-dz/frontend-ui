@@ -67,7 +67,6 @@ function MyApp({ Component, pageProps }) {
   return (
     <WagmiConfig  client={wagmiClient}>
       <RainbowKitProvider avatar={CustomAvatar}  chains={chains} coolMode>
-        <Navbar/>
         <Component {...pageProps} />
       </RainbowKitProvider>
     </WagmiConfig >
