@@ -30,13 +30,13 @@ const BulkCreate = () => {
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
     const getCollections = async () => {
-      const resData = await axios.get(`${API_URL}/collections/list`)
+      const resData = await axios.get(`${API_URL}/collections/my-collections/${account?.address}`)
       if(resData){
         setCollections(resData.data.data)
       }
     } 
     getCollections()
-  },[])
+  },[account])
 
   const transactionParameters = {
       to: contractAddress,
@@ -99,7 +99,7 @@ const BulkCreate = () => {
       link: '',
       description: '',
       price: 0,
-      collectionId: "",
+      collectionId: '',
       collectionName: '',
       collectionDesc: ''
     },
@@ -118,7 +118,8 @@ const BulkCreate = () => {
             formData.append("files", images[i])
           }
           const nftRes = await axios.post(`${API_URL}/nfts/bulkCreate`, formData)
-          setStatus("upload")
+          setStatus("uploading")
+          window.location.href = '/nfts/create/pending'
         }else{
           alert("Please Connect Wallet")
         }
@@ -162,8 +163,6 @@ const BulkCreate = () => {
     setImg(files[0])
     setImgUrl(URL.createObjectURL(files[0]))
   }
-  console.log(images)
-
   return(
     <div className="container mx-auto">
       <Head>
@@ -174,7 +173,7 @@ const BulkCreate = () => {
       <h1 className='text-4xl font-bold p-5'>Create single item</h1>
       <p className='text-lg p-5 lg:w-2/5'>
         To Create Multiple Nfts, you need to upload multiple image and wait untils its ready to mint. You can check pending 
-        list on <a href='pending'>here!!!</a>
+        list on <a className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600" href='pending'>here!!!</a>
       </p>
       <div className="lg:w-1/3 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
         onDragEnter={(e) => handleDragEnter(e)}
@@ -234,7 +233,7 @@ const BulkCreate = () => {
           <textarea class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             id="description" 
             name='description'
-            value={formik.values.link}
+            value={formik.values.description}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             rows="4"  
@@ -247,7 +246,7 @@ const BulkCreate = () => {
           <select 
             id="type" 
             name="type" 
-            value={formik.values.collectionId} 
+            value={formik.values.type} 
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             className="shadow appearance-none border w-full rounded ">
@@ -321,9 +320,12 @@ const BulkCreate = () => {
             Upload Metadatas for NFTs
           </button>
         </div>
-        {status == 'upload' && 
+        <div>
+          {status}
+        </div>
+        {status === 'uploading' && 
           <div>
-            Uploading the images, Please check you NFTs status and Mint NFTs in <a href='pending'>here!</a>
+            Uploading the images, Please check you NFTs status and Mint NFTs in <a className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600" href='pending'>here!</a>
           </div>
         }
       </form>

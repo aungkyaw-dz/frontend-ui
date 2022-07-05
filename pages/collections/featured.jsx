@@ -5,13 +5,14 @@ import Link from 'next/link'
 import { useFormik } from "formik";
 
 const Featured = () => {
-  const [collections, setCollections] = useState(null);
+  const [collections, setCollections] = useState([]);
   const [query, setQuery] = useState("");
+  const [limit, setLimit] = useState(10);
   const API_URL = process.env.API_URL
 
   useEffect(()=>{
     const getCollections = async () => {
-      const res = await axios.get(`${API_URL}/collections/featured`, {params: query})
+      const res = await axios.get(`${API_URL}/collections/featured`, {params: {name: query.name, limit: limit}})
       setCollections(res.data.data)
     }
     getCollections()
@@ -105,6 +106,9 @@ const Featured = () => {
             </div>
           ))
         }
+      </div>
+      <div>
+        <button onClick={()=>{setLimit(limit+10)}}>load more</button>
       </div>
     </div>
   )

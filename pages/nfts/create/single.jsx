@@ -29,13 +29,13 @@ const SingleCreate = () => {
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
     const getCollections = async () => {
-      const resData = await axios.get(`${API_URL}/collections/list`)
+      const resData =await axios.get(`${API_URL}/collections/my-collections/${account?.address}`)
       if(resData){
         setCollections(resData.data.data)
       }
     } 
     getCollections()
-  },[])
+  },[account])
 
   const transactionParameters = {
       to: contractAddress,
@@ -93,6 +93,7 @@ const SingleCreate = () => {
             setStatus(null)
             setMetaData(null)
             setReady(true)
+            window.location.href = `/nfts/${nftRes.data.data.nftId}`
           }
         }
       }catch(err){
@@ -237,7 +238,7 @@ const SingleCreate = () => {
           <textarea class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             id="description" 
             name='description'
-            value={formik.values.link}
+            value={formik.values.description}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             rows="4"  
@@ -250,7 +251,7 @@ const SingleCreate = () => {
           <select 
             id="type" 
             name="type" 
-            value={formik.values.collectionId} 
+            value={formik.values.type} 
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             className="shadow appearance-none border w-full rounded ">

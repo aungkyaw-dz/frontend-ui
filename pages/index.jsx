@@ -21,14 +21,15 @@ export default function Home() {
       setFavourite(res.data.data)
     }
     const getMostViewNfts = async ()=>{
-      const res = await axios.get(`${API_URL}/nfts/list?sortBy=viewed`)
+      const res = await axios.get(`${API_URL}/nfts/list?sortBy=viewed&status=MINTED`)
       setNfts(res.data.data)
     }
     getMostViewNfts()
     getFeatured()
     getFavourite()
   },[])
-  console.log(nfts)
+  console.log(favourite)
+  console.log(featured)
   return (
     <div className={styles.container}>
       <Head>

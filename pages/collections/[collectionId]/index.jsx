@@ -69,11 +69,11 @@ const CollectionDetail = () => {
             <span className="text-lg font-medium text-gray-700">NFTs</span>
           </div>
           <div className="w-20 text-center">
-            <h1 className="text-lg font-bold">{collection.Creator.username||"admin"}</h1>
+            <h1 className="text-lg font-bold">{collection.Creator?.username||"admin"}</h1>
             <span className="text-lg font-medium text-gray-700">Creator</span>
           </div>
           <div className="w-20 text-center">
-            <h1 className="text-lg font-bold">{collection.Creator.username||"admin"}</h1>
+            <h1 className="text-lg font-bold">{collection.Creator?.username||"admin"}</h1>
             <span className="text-lg font-medium text-gray-700">Owner</span>
           </div>
         </div>

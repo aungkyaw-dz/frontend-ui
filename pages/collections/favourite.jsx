@@ -7,11 +7,12 @@ import { useFormik } from "formik";
 const Favourite = () => {
   const [collections, setCollections] = useState(null);
   const [query, setQuery] = useState("");
+  const [limit, setLimit] = useState(10);
   const API_URL = process.env.API_URL
 
   useEffect(()=>{
     const getCollections = async () => {
-      const res = await axios.get(`${API_URL}/collections/favourite`, {params: query})
+      const res = await axios.get(`${API_URL}/collections/favourite`, {params: {name: query.name, limit: limit}})
       setCollections(res.data.data)
     }
     getCollections()
@@ -105,6 +106,9 @@ const Favourite = () => {
             </div>
           ))
         }
+      </div>
+      <div>
+        <button onClick={()=>{setLimit(limit+10)}}>load more</button>
       </div>
     </div>
   )
