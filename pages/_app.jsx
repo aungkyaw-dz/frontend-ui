@@ -42,7 +42,7 @@ const CustomAvatar = ({ address,ensImage, size })=>{
 
 
 function MyApp({ Component, pageProps }) {
-  const ALCHEMY_KEY = process.env.ALCHEMY_KEY
+  const ALCHEMY_KEY = process.env.REACT_APP_ALCHEMY_KEY
   console.log(ALCHEMY_KEY)
   const { chains, provider } = configureChains(
     [chain.mainnet, chain.polygonMumbai],
