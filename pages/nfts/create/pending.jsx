@@ -44,7 +44,8 @@ const PendingNFTs = () => {
   const API_URL = process.env.API_URL
 
   const contractAddress = process.env.CONTRACT_ADDRESS;
-  const web3 = createAlchemyWeb3(API_URL);
+  const REACT_APP_ALCHEMY_URL = process.env.REACT_APP_ALCHEMY_URL
+  const web3 = createAlchemyWeb3(REACT_APP_ALCHEMY_URL);
   const [ready, setReady] = useState(false)
 
   useEffect(()=>{
