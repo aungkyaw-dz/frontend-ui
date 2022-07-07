@@ -152,9 +152,7 @@ const PendingNFTs = () => {
   const transactionParameters = {
     to: contractAddress,
     from: account?.address,
-    'gas': 500000,
-    'maxPriorityFeePerGas': 2999999987,
-    'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
+    'data': "0xc841adb0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000005268747470733a2f2f676174657761792e70696e6174612e636c6f75642f697066732f516d614d734d4159654d46346f486f47427156707546334246463159514b4c596e53434c796539347631387863422f310000000000000000000000000000"
   };
   const { data: txData, sendTransaction, status: transStatus } =
           useSendTransaction({
@@ -184,7 +182,7 @@ const PendingNFTs = () => {
       sendTransaction()
       console.log(tokenUris)
       console.log(window.contract.methods.bulkMinting(tokenUris).encodeABI())
-      console.log(account)
+      console.log(tokenUris?.length>0)
     }
   }
 
