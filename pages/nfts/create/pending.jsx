@@ -152,6 +152,8 @@ const PendingNFTs = () => {
   const transactionParameters = {
     to: contractAddress,
     from: account?.address,
+    'gas': 500000,
+    'maxPriorityFeePerGas': 2999999987,
     'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
   };
   const { data: txData, sendTransaction, status: transStatus } =
@@ -182,6 +184,7 @@ const PendingNFTs = () => {
       sendTransaction()
       console.log(tokenUris)
       console.log(window.contract.methods.bulkMinting(tokenUris).encodeABI())
+      console.log(account)
     }
   }
 
