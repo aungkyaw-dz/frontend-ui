@@ -152,7 +152,9 @@ const PendingNFTs = () => {
   const transactionParameters = {
     to: contractAddress,
     from: account?.address,
-    'data': "0xc841adb0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000005268747470733a2f2f676174657761792e70696e6174612e636c6f75642f697066732f516d614d734d4159654d46346f486f47427156707546334246463159514b4c596e53434c796539347631387863422f310000000000000000000000000000"
+    'gas': 500000,
+    'maxPriorityFeePerGas': 2999999987,
+    'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
   };
   const { data: txData, sendTransaction, status: transStatus } =
           useSendTransaction({
@@ -174,6 +176,11 @@ const PendingNFTs = () => {
           },
           })
 
+  const estGas = await web3.eth.estimateGas({
+    to: contractAddress,
+    from: account?.address,
+    'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
+  })
   const bulkMint = () => {
     if(tokenUris.length <1){
       alert("please select one")
@@ -182,7 +189,7 @@ const PendingNFTs = () => {
       sendTransaction()
       console.log(tokenUris)
       console.log(window.contract.methods.bulkMinting(tokenUris).encodeABI())
-      console.log(tokenUris?.length>0)
+      console.log(estGas)
     }
   }
 
