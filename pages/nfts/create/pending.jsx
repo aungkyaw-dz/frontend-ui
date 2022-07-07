@@ -152,12 +152,13 @@ const PendingNFTs = () => {
   const transactionParameters = {
     to: contractAddress,
     from: account?.address,
-    'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
+    'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris||['']).encodeABI()  : ""
   };
   const { data: txData, sendTransaction, status: transStatus } =
           useSendTransaction({
           request: transactionParameters,
           onError(error) {
+            console.log(tokenUris)
             console.log(error)
             console.log(error.message)
             setStatus("Error")
@@ -175,15 +176,22 @@ const PendingNFTs = () => {
           })
   useEffect(()=>{
     const a = async() => {
-      const estGas = await web3.eth.estimateGas({
-        to: contractAddress,
-        from: account?.address,
-        'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
-      })
-      console.log(estGas)
+      try{
+        console.log(contractAddress)
+        web3.eth.estimateGas({
+          to: contractAddress,
+          from: account?.address,
+          data: tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
+        }).then(console.log).catch((error)=> console.log(error))
+        console.log(estGas)
+      }catch(err){
+        console.log("err")
+        console.log("err.message")
+      }
     }
     a()
   },[tokenUris])
+  console.log(contractAddress)
   
   const bulkMint = () => {
     if(tokenUris.length <1){
