@@ -175,12 +175,18 @@ const PendingNFTs = () => {
             setStatus("Wait until transcation complete")
           },
           })
-
-  const estGas = await web3.eth.estimateGas({
-    to: contractAddress,
-    from: account?.address,
-    'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
-  })
+  useEffect(()=>{
+    const a = async() => {
+      const estGas = await web3.eth.estimateGas({
+        to: contractAddress,
+        from: account?.address,
+        'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
+      })
+      console.log(estGas)
+    }
+    a()
+  },[tokenUris])
+  
   const bulkMint = () => {
     if(tokenUris.length <1){
       alert("please select one")
@@ -189,7 +195,6 @@ const PendingNFTs = () => {
       sendTransaction()
       console.log(tokenUris)
       console.log(window.contract.methods.bulkMinting(tokenUris).encodeABI())
-      console.log(estGas)
     }
   }
 
