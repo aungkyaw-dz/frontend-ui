@@ -156,6 +156,7 @@ const PendingNFTs = () => {
           useSendTransaction({
           request: transactionParameters,
           onError(error) {
+            console.log(error)
             setStatus("Error")
             if(error.code == "INSUFFICIENT_FUNDS"){
                 alert("Sorry, your wallet has insufficient funds. Please fund your wallet via Binance")
