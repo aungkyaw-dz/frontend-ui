@@ -44,31 +44,31 @@ const Navbar = () => {
                         Collections
                     </a>
                     </Link>
+                    {data && (
+                        <>
+                        <Link href='/collections/my-collection'>
+                            <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
+                                My Collections
+                            </a>
+                        </Link>
+                        <Link href='/nfts/create/pending'>
+                            <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
+                                Pending NFTs
+                            </a>
+                        </Link>
+                        <Link href='/profile'>
+                            <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
+                                Profile
+                            </a>
+                        </Link>
+                        
+                        </>
+                    )}
                     <Link href='/nfts/create'>
                         <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
                             Create NFT
                         </a>
                     </Link>
-                    <Link href='/collections/my-collection'>
-                        <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
-                            My Collections
-                        </a>
-                    </Link>
-                    {data && (
-                        <>
-                        <Link href='/nfts/create/pending'>
-                        <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
-                            Pending NFTs
-                        </a>
-                        </Link>
-                        <Link href='/profile'>
-                        <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
-                            Profile
-                        </a>
-                        </Link>
-                        
-                        </>
-                    )}
                     <ConnectButton className="shadow-md" chainStatus="none" accountStatus="avatar" showBalance={false}/>
                 </div>
             </div>

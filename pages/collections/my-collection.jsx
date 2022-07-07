@@ -23,6 +23,7 @@ const CollectionDetail = () => {
    }
     getCollection()
   },[account])
+  
   return(
     <div className="container mx-auto">
       <Head>
@@ -37,7 +38,7 @@ const CollectionDetail = () => {
             <Link key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`/collections/${collection.collectionId}`}>
               <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer">
               <div className="flex">
-                <div className="w-32 p-5">
+                <div className="w-32 h-32 p-5">
                   {collection.logo ? 
                   <img
                     src={collection.logo}
@@ -70,13 +71,15 @@ const CollectionDetail = () => {
                   <span className="text-lg font-medium text-gray-700">Owner</span>
                 </div>
               </div>
-              <div className="relative w-60 m-auto">
+              <div className="relative w-40 h-40 m-auto">
                 {collection.nfts.length > 1 && 
                   <div className="absolute text-5xl font-bold top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">+{collection.nfts.length-1}</div>
                   }
                 <img
                   src={collection.nfts[0]?.logo}
                   alt={collection.nfts[0]?.name}
+                  className="object-center object-cover"
+
                 />
                 
               </div>

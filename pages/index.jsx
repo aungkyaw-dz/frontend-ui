@@ -7,9 +7,9 @@ import CollectionGallery from '../components/collections/gallery'
 import NftGallery from '../components/nfts/gallery'
 
 export default function Home() {
-  const [featured, setFeatured] = useState(null)
-  const [favourite, setFavourite] = useState(null)
-  const [nfts, setNfts] = useState(null)
+  const [featured, setFeatured] = useState([])
+  const [favourite, setFavourite] = useState([])
+  const [nfts, setNfts] = useState([])
   const API_URL = process.env.API_URL
   useEffect(()=>{
     const getFeatured = async ()=>{
@@ -42,13 +42,13 @@ export default function Home() {
         <h1 className={styles.title}>
           Welcome to The Urban Tech
         </h1>
-        {featured && 
+        {nfts.length >0 && 
           <NftGallery nfts={nfts} name="most viewed" />
         }
-        {featured && 
+        {featured.length >0 && 
           <CollectionGallery collections={featured} name="featured" />
         }
-        {favourite && 
+        {favourite.length >0 && 
           <CollectionGallery collections={favourite} name="favourite" />
         }
       </main>

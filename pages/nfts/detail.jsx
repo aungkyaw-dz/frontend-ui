@@ -34,7 +34,7 @@ const NftDetail = () => {
    }
     getNft()
   },[nftId])
-
+  console.log(nftId)
   const contractAddress = process.env.CONTRACT_ADDRESS;
   const API_URL = process.env.API_URL;
   const web3 = createAlchemyWeb3(API_URL);

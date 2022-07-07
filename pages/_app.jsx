@@ -42,11 +42,12 @@ const CustomAvatar = ({ address,ensImage, size })=>{
 
 
 function MyApp({ Component, pageProps }) {
+  const ALCHEMY_KEY = process.env.ALCHEMY_KEY
 
   const { chains, provider } = configureChains(
     [chain.mainnet, chain.polygonMumbai],
     [
-      alchemyProvider({ alchemyId: "frVV_vKK1_Pf-JkOiqzzn3L9Z9RSKNh1" }),
+      alchemyProvider({ alchemyId: ALCHEMY_KEY }),
     ]
   );
   
