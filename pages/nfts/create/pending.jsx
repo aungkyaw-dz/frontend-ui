@@ -150,7 +150,7 @@ const PendingNFTs = () => {
   const transactionParameters = {
     to: contractAddress,
     from: account?.address,
-    'data': tokenUris?.length>0? window.contract.methods.bulkMinting([tokenUris]).encodeABI()  : ""
+    'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
   };
   const { data: txData, sendTransaction, status: transStatus } =
           useSendTransaction({
