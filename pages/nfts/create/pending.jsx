@@ -180,6 +180,8 @@ const PendingNFTs = () => {
     }else{
       setStatus("Minting")
       sendTransaction()
+      console.log(tokenUris)
+      console.log(window.contract.methods.bulkMinting(tokenUris).encodeABI())
     }
   }
 
