@@ -72,8 +72,13 @@ const SingleCreate = () => {
   useEffect(()=>{
     if(metaData && !txData){
       try{
-        setStatus("Minting")
-        sendTransaction()
+        if(!activeConnector){
+          connect(connectors[5])
+         }
+        setTimeout(()=>{
+          setStatus("Minting")
+          sendTransaction()
+        }, 1000);
       }catch(err){
         console.log(err)
         setStatus("Error")

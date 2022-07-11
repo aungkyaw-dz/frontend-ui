@@ -3,7 +3,7 @@ import { useEffect, useState, useMemo, useRef } from 'react'
 import Head from "next/head";
 import Link from 'next/link';
 import Image from 'next/image'
-import { useAccount, useSendTransaction, useWaitForTransaction, useToken } from 'wagmi';
+import { useAccount, useSendTransaction, useWaitForTransaction, useConnect } from 'wagmi';
 import {
   Column,
   createTable,
@@ -38,21 +38,20 @@ const IndeterminateCheckbox =({indeterminate, className = '', ...rest})=> {
 }
 
 const PendingNFTs = () => {
-  const {data:account}= useAccount()
+  const {data:account }= useAccount()
+  const { connect, connectors, activeConnector } = useConnect()
   const [nfts, setNfts] = useState([]);
   const [status, setStatus] = useState(null);
   const API_URL = process.env.API_URL
 
   const contractAddress = process.env.CONTRACT_ADDRESS;
   const REACT_APP_ALCHEMY_URL = process.env.REACT_APP_ALCHEMY_URL
-  console.log(REACT_APP_ALCHEMY_URL)
   const web3 = createAlchemyWeb3(REACT_APP_ALCHEMY_URL);
   const [ready, setReady] = useState(false)
 
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
   },[])
-
 
   useEffect(()=>{
     const getNfts = async () => {
@@ -67,6 +66,7 @@ const PendingNFTs = () => {
       }
    }
    getNfts()
+   
   },[account])
 
   const [rowSelection, setRowSelection] = useState({})
@@ -152,13 +152,12 @@ const PendingNFTs = () => {
   const transactionParameters = {
     to: contractAddress,
     from: account?.address,
-    'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris||['']).encodeABI()  : ""
+    'data': tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
   };
   const { data: txData, sendTransaction, status: transStatus } =
           useSendTransaction({
           request: transactionParameters,
           onError(error) {
-            console.log(tokenUris)
             console.log(error)
             console.log(error.message)
             setStatus("Error")
@@ -174,37 +173,21 @@ const PendingNFTs = () => {
             setStatus("Wait until transcation complete")
           },
           })
-  useEffect(()=>{
-    const a = async() => {
-      try{
-        console.log(contractAddress)
-        web3.eth.estimateGas({
-          to: contractAddress,
-          from: account?.address,
-          data: tokenUris?.length>0? window.contract.methods.bulkMinting(tokenUris).encodeABI()  : ""
-        }).then(console.log).catch((error)=> console.log(error))
-        console.log(estGas)
-      }catch(err){
-        console.log("err")
-        console.log("err.message")
-      }
-    }
-    a()
-  },[tokenUris])
-  console.log(contractAddress)
-  
   const bulkMint = () => {
     if(tokenUris.length <1){
       alert("please select one")
     }else{
-      setStatus("Minting")
-      sendTransaction()
-      console.log(tokenUris)
-      console.log(window.contract.methods.bulkMinting(tokenUris).encodeABI())
+      if(!activeConnector){
+        connect(connectors[5])
+       }
+      setTimeout(()=>{
+        setStatus("Minting")
+        sendTransaction()
+      }, 1000);
     }
   }
 
-  const { data: wait, isError, isLoading } = useWaitForTransaction({
+  const { data: wait } = useWaitForTransaction({
     hash: txData?.hash,
   })
 

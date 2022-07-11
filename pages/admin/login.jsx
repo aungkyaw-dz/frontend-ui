@@ -2,6 +2,7 @@ import Head from 'next/head'
 import { useEffect, useState } from 'react';
 import { useAccount, useDisconnect } from 'wagmi';
 import axios from 'axios';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const Login = () => {
 
@@ -38,8 +39,11 @@ const Login = () => {
       </Head>
       <div>
         {!data && (
-          <div>
-            <h1>Connect with Admin Wallet</h1>
+          <div className='container'>
+            <div className='m-auto p-5'>
+              <h1>Connect with Admin Wallet</h1>
+              <ConnectButton className="shadow-md" accountStatus="avatar" showBalance={false}/>
+            </div>
           </div>
         )}
       </div>

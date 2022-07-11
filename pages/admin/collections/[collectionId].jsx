@@ -117,6 +117,13 @@ const CollectionDetail = () => {
     
   }
 
+  useEffect(()=>{
+    const token = localStorage.getItem('jwtToken')
+    if(!token){
+      window.location.href = '/admin/login'
+    }
+  },[])
+
   return(
     <div className="container mx-auto">
       <Head>

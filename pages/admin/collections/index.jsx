@@ -7,13 +7,13 @@ import Link from 'next/link';
 import DefaultImage from '../../../asset/images/default.png' 
 import Image from 'next/image';
 const Collections = () => {
-  // const router = useRouter()
-  // useEffect(()=>{
-  //   const token = localStorage.getItem('jwtToken')
-  //   if(!token){
-  //     router.push('/admin/login')
-  //   }
-  // },[])
+  const router = useRouter()
+  useEffect(()=>{
+    const token = localStorage.getItem('jwtToken')
+    if(!token){
+      router.push('/admin/login')
+    }
+  },[])
   const API_URL = process.env.API_URL
   console.log(DefaultImage)
   const [collections, setCollections] = useState(null);
