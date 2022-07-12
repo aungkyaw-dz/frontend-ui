@@ -3,7 +3,7 @@ import { Field, useFormik } from 'formik';
 import * as yup from 'yup';
 import { useEffect, useState } from 'react';
 import { CreateMetaData } from '../../../utils/pinata';
-import { useAccount, useSendTransaction, useWaitForTransaction } from 'wagmi';
+import { useAccount, useSendTransaction, useWaitForTransaction, useConnect } from 'wagmi';
 import axios from 'axios';
 import { Dropdown } from 'flowbite-react';
 import Link from 'next/link';
@@ -21,6 +21,7 @@ const SingleCreate = () => {
   const [metaData, setMetaData] = useState(null)
   const [nftId, setNftId] = useState(null)
   const { data: account } = useAccount()
+  const { connect, connectors, activeConnector } = useConnect()
   const [status, setStatus] = useState(null)
   const contractAddress = process.env.CONTRACT_ADDRESS;
   const API_URL = process.env.API_URL;
@@ -85,7 +86,6 @@ const SingleCreate = () => {
       }
     }
   },[metaData])
-
   useEffect(()=>{
     const updateTokenId = () =>{
       const tokenId = web3.utils.hexToNumber(wait?.logs[0].topics[3])
