@@ -79,7 +79,7 @@ const SingleCreate = () => {
         setTimeout(()=>{
           setStatus("Minting")
           sendTransaction()
-        }, 1000);
+        }, 5000);
       }catch(err){
         console.log(err)
         setStatus("Error")

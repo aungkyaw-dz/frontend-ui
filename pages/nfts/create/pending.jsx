@@ -183,7 +183,7 @@ const PendingNFTs = () => {
       setTimeout(()=>{
         setStatus("Minting")
         sendTransaction()
-      }, 1000);
+      }, 5000);
     }
   }
 
