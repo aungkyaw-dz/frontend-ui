@@ -33,14 +33,14 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>The Urban Tech</title>
-        <meta name="description" content="The Urban Tech" />
+        <title>Kob Startup Project</title>
+        <meta name="description" content="Kob Startup Project" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Welcome to The Urban Tech
+          Welcome to Kob Startup Project
         </h1>
         {nfts.length >0 && 
           <NftGallery nfts={nfts} name="most viewed" />
