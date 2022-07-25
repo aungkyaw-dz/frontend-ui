@@ -32,11 +32,11 @@ const CollectionDetail = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1 className='text-4xl font-bold p-5'>My Collections</h1>
-      <div className="container grid grid-cols-3 gap-4">
+      <div className="container grid md:grid-cols-3 gap-4">
         {
           collections && collections?.map((collection)=>(
             <Link key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`/collections/${collection.collectionId}`}>
-              <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer">
+              <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer overflow-hidden">
               <div className="flex">
                 <div className="w-32 h-32 p-5">
                   {collection.logo ? 
@@ -45,7 +45,7 @@ const CollectionDetail = () => {
                     alt={collection.name}
                     className="w-full h-full object-center object-cover "
                   />:
-                  <div className="w-full h-full background-gray"></div>
+                  <div className="w-full h-full bg-gray-500"></div>
                   }
                 </div>
                 <div>

@@ -79,10 +79,10 @@ const CollectionDetail = () => {
         </div>
         <div className="p-10">
           <h1 className='text-3xl text-gray-500'>NFTs</h1>
-          <div className='container grid grid-cols-4 gap-4 p-5'>
+          <div className='container grid md:grid-cols-4 gap-4 p-5'>
             {collection.nfts && collection.nfts.map((nft)=>(
               <Link key={nft?.nftId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`/nfts/${nft.nftId}`}>
-                <div className='group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer'>
+                <div className='group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer overflow-hidden'>
                   <div className="w-full">
                     <img
                       src={nft.logo}

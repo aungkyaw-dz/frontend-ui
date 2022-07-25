@@ -5,12 +5,12 @@ export default function Gallery({collections, name}) {
   return (
       <div className="collection-gallery">
         <h1 className='text-4xl font-bold p-5'>{name.toUpperCase()} COLLECTIONS</h1>
-        <div className="container grid grid-cols-3 gap-4">
+        <div className="container grid md:md:grid-cols-3 gap-4">
         {
           collections && collections?.map((collection)=>(
             <div key={collection?.collectionId}>
             <Link key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`collections/${collection.collectionId}`}>
-              <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer">
+              <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer overflow-hidden">
               <div className="flex">
                 <div className="w-32 h-32 p-5">
                   {collection.logo ? 

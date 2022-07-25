@@ -4,10 +4,13 @@ import { useEffect } from "react";
 const Aung = () => {
   const router = useRouter()
   const {nftId} = router.query
+  console.log(nftId)
   useEffect(()=>{
     localStorage.setItem('nftId',nftId)
-    router.push('/nfts/detail')
-  },[])
+    if(nftId){
+      router.push('/nfts/detail')
+    }
+  },[nftId])
   return(
     <div>
       
