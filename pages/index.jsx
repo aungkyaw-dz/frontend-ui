@@ -28,8 +28,6 @@ export default function Home() {
     getFeatured()
     getFavourite()
   },[])
-  console.log(favourite)
-  console.log(featured)
   return (
     <div className={styles.container}>
       <Head>

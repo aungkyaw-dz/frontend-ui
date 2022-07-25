@@ -34,7 +34,6 @@ const NftDetail = () => {
    }
     getNft()
   },[nftId])
-  console.log(nftId)
   const contractAddress = process.env.CONTRACT_ADDRESS;
   const API_URL = process.env.API_URL;
   const web3 = createAlchemyWeb3(API_URL);
@@ -45,7 +44,6 @@ const NftDetail = () => {
   },[])
   useEffect(()=>{
     const updateTokenId = async()=>{
-      console.log(nft?.tokenId)
       if(nft && nft.tokenId === 0){
         const requestData = {
             "jsonrpc":"2.0",
@@ -55,12 +53,10 @@ const NftDetail = () => {
         }
         const receipt = await axios.post("https://polygon-mumbai.g.alchemy.com/v2/frVV_vKK1_Pf-JkOiqzzn3L9Z9RSKNh1", requestData)
         const tokenId = web3.utils.hexToNumber(receipt.data.result?.logs[0].topics[3])
-        console.log(receipt)
         const updateData = {
           tokenId: tokenId
         }
         const nftRes = await axios.post(`${API_URL}/nfts/update/${nftId}`, updateData)
-        console.log(nftRes.data.data)
         setNft(nftRes.data.data)
       }
     }
@@ -75,7 +71,6 @@ const NftDetail = () => {
           useSendTransaction({
           request: transactionParameters,
           onError(error) {
-            console.log(transactionParameters)
               if(error.code == "INSUFFICIENT_FUNDS"){
                   alert("Sorry, your wallet has insufficient funds. Please fund your wallet via Binance")
               }
@@ -84,6 +79,7 @@ const NftDetail = () => {
               }
             },
           })
+          
   const transferNft = async () =>{
     if(data){
       sendTransaction()
@@ -109,15 +105,6 @@ const NftDetail = () => {
     }
   },[isSuccess])
 
-  useEffect(()=>{
-    if(nft){
-      const a = async () =>{
-        console.log(nft.txid)
-      }
-      a()
-    }
-  },[nft])
-
   return(
     <div className="container mx-auto">
        <Head>
@@ -128,12 +115,25 @@ const NftDetail = () => {
       {nft && (
 
       <div className='flex'>
-        <div className='group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer'>
-          <div className="w-full">
-            <img
-              src={nft.logo}
-              alt={nft.name}
-            />
+        <div className='group relative h-full border-2  p-2 rounded-md shadow-md h-100'>
+          <div className="w-72">
+            {
+              nft?.fileType === 'image' && (
+              <img
+                src={nft.logo}
+                alt={nft.name}
+              />  
+              )
+            }
+            {
+              nft?.fileType === 'video' && (
+                <video controls width="auto">
+                  <source src={nft.logo}
+                          type="video/mp4"/>
+                </video>  
+              )
+            }
+            
           </div>
         </div>
         <div className='w-full p-10'>
@@ -160,7 +160,7 @@ const NftDetail = () => {
           }
           </div>
         </div>
-        <div className='grid grid-cols-2 gap-4 mt-10 w-1/2'>
+        <div className='grid md:grid-cols-2 gap-4 mt-10 w-1/2'>
           <h6 className='text-lg text-gray-500 font-bold'>NFT Type:</h6>
           <h6 className='text-lg text-gray-500'>{nft.nftType}</h6>
           <h6 className='text-lg text-gray-500 font-bold'>Owner:</h6>

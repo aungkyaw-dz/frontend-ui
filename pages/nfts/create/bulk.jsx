@@ -135,7 +135,7 @@ const BulkCreate = () => {
         onDragLeave={(e) => handleDragLeave(e)}
         onDrop={(e) => handleDrop(e)}
        >
-        <div className='grid gap-4 grid-cols-5 p-5'>
+        <div className='grid gap-4 md:grid-cols-5 p-5'>
           {images? Array.from(images).map((image)=>(
               <div>
                 <img  className='w-20 max-w-none' src={URL.createObjectURL(image)} alt='preview'/>
@@ -184,7 +184,7 @@ const BulkCreate = () => {
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
             Description
           </label>
-          <textarea className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          <textarea className="block p-2.5 w-full text-sm text-gray-900 bg-gray-500-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-500-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             id="description" 
             name='description'
             value={formik.values.description}

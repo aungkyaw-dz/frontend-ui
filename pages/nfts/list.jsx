@@ -22,16 +22,28 @@ const NftLists = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <h1 className='text-4xl font-bold p-5'>List of Nfts</h1>
-      <div className="container grid grid-cols-4 gap-4">
+      <div className="container grid md:grid-cols-4 gap-4">
         {
           nfts && nfts?.map((nft)=>(
             <div key={nft?.nftId} className="group relative border-2 border-slate-400 p-2 rounded-md" >
-              <div className="w-full min-h-80 bg-gray-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
-                <img
-                  src={nft.logo}
-                  alt={nft.name}
-                  className="w-full h-full object-center object-cover "
-                />
+              <div className="w-full min-h-80 bg-gray-500-200 aspect-w-1 aspect-h-1 rounded-md overflow-hidden group-hover:opacity-75 lg:h-80 lg:aspect-none">
+                {
+                  nft?.fileType === 'image' && (
+                  <img
+                    src={nft.logo}
+                    alt={nft.name}
+                    className="w-full h-full object-center object-cover "
+                  />  
+                  )
+                }
+                {
+                  nft?.fileType === 'video' && (
+                    <video controls width="auto" className="w-full h-full object-center object-cover ">
+                      <source src={nft.logo}
+                              type="video/mp4"/>
+                    </video>  
+                  )
+                }
               </div>
               <div className="mt-4 flex justify-between">
                 <div>

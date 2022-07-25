@@ -69,7 +69,7 @@ const Navbar = () => {
                             Create NFT
                         </a>
                     </Link>
-                    <ConnectButton className="shadow-md" chainStatus="none" accountStatus="avatar" showBalance={false}/>
+                    <ConnectButton className="shadow-md" chainStatus="icon" accountStatus="avatar" showBalance={false}/>
                 </div>
             </div>
         </nav>

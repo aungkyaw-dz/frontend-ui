@@ -68,8 +68,6 @@ const SingleCreate = () => {
       hash: txData?.hash,
     })
   
-    
-
   useEffect(()=>{
     if(metaData && !txData){
       try{
@@ -125,6 +123,8 @@ const SingleCreate = () => {
         if(account){
           values.creator = account.address
           values.owner = account.address
+          values.fileType = img?.type.split('/')[0]
+
           const formData = new FormData()
           for ( var key in values ) {
             formData.append(key, values[key]);
@@ -158,11 +158,16 @@ const SingleCreate = () => {
 
   const uploadImg =  (e) => {
     if(e.target.files && e.target.files[0]){
-      setImg(e.target.files[0])
-      setImgUrl(URL.createObjectURL(e.target.files[0]))
+      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
+      if(filesize<25){
+        setImg(e.target.files[0])
+        setImgUrl(URL.createObjectURL(e.target.files[0]))
+      }else{
+        alert('excess max size')
+      }
+      
     }
   }
-
   const handleDragEnter = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -182,7 +187,6 @@ const SingleCreate = () => {
     e.stopPropagation();
     console.log(e)
     let files = [...e.dataTransfer.files];
-    console.log(files)
     setImg(files[0])
     setImgUrl(URL.createObjectURL(files[0]))
   }
@@ -192,6 +196,10 @@ const SingleCreate = () => {
   };
   const options = [
     { value: '', label: 'create categories', isDisabled: true },
+    { value: 'Dog', label: 'Dog'},
+    { value: 'Computer', label: 'Computer'},
+    { value: 'Hotel', label: 'Hotel'},
+    { value: 'Swimming pool', label: 'Swimming pool'},
   ]
 
   return(
@@ -204,7 +212,7 @@ const SingleCreate = () => {
       <h1 className='text-4xl font-bold p-5'>Create single item</h1>
       <p className='text-lg p-5 lg:w-2/5'>
         Image, Video, Audio, or 3D Model. File types supported: JPG, PNG, GIF,
-        SVG. Max size: 100 MB
+        SVG. Max size: 25 MB
       </p>
       <div className="lg:w-1/3 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 "
         onDragEnter={(e) => handleDragEnter(e)}
@@ -219,8 +227,11 @@ const SingleCreate = () => {
         <input
             id="fileSelect"
             type="file"
+            accept='.jpg, .jpeg, .png, .gif, .mp4, .svg, .pdf, .txt, .xlsx, .xls, .csv'
             onChange={(e)=> uploadImg(e)}
+            className="hidden"
           />
+        <label htmlFor="fileSelect">upload image</label>
       </div>
       <form className="lg:w-1/3 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={formik.handleSubmit}>
         <div className="mb-4 ">
@@ -252,7 +263,7 @@ const SingleCreate = () => {
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
             Description
           </label>
-          <textarea className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          <textarea className="block p-2.5 w-full text-sm text-gray-900 bg-gray-500-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-500-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             id="description" 
             name='description'
             value={formik.values.description}
