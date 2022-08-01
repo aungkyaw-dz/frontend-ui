@@ -4,16 +4,15 @@ import Link from 'next/link'
 export default function Gallery({nfts, name}) {
   return (
       <div className="nft-gallery">
-        <h1 className='text-4xl font-bold p-5'>{name.toUpperCase()} NFTs</h1>
-        <div className="container grid md:md:grid-cols-3 gap-4">
+        {/* <h1 className='text-4xl font-bold p-5'>{name.toUpperCase()} NFTs</h1> */}
+        <div className="container grid lg:grid-cols-3  gap-4">
         {
           nfts && nfts?.map((nft)=>(
             <div key={nft?.nftId}>
             <Link key={nft?.nftId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`nfts/${nft.nftId}`}>
-              <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer overflow-hidden">
-              <div className="flex">
-                <div className="w-32 p-5">
-                  {nft.logo ? 
+              <div className="group relative border-2 border-slate-400 p-5 rounded-md shadow-md cursor-pointer overflow-hidden">
+              <div className="w-full h-60 overflow-hidden">
+                {nft.logo ? 
                   <div className="w-full h-full object-center object-cover "
                   >
                     {
@@ -34,26 +33,24 @@ export default function Gallery({nfts, name}) {
                     }
                   </div>:
                   <div className="w-full h-full bg-gray-500"></div>
-                  }
-                </div>
-                <div>
-                <h3 className="text-5xl text-gray-700  p-2">
-                  {nft.name}
-                </h3>
-                <h3 className="text-lg text-gray-500  p-2">
-                  {nft.description}
-                </h3>
-                </div>
+                }
               </div>
-              <div className="flex justify-between p-5">
-                <div className="w-20 text-center">
-                  <h1 className="text-lg font-bold">{nft.Creator?.username||"admin"}</h1>
-                  <span className="text-lg font-medium text-gray-700">Creator</span>
+              <div className='p-5'>
+                <h1 className="text-lg font-bold">Name</h1>
+                <p className="text-lg font-medium text-gray-700 border-2 p-2 w-100">{nft.name}</p>
+                <h1 className="text-lg font-bold mt-3">Description</h1>
+                <p className="text-lg font-medium text-gray-700 border-2 p-2 w-100 h-24 overflow-auto">{nft.description}</p>
+                <h1 className="text-lg font-bold mt-3">Owner</h1>
+                <p className="text-lg font-medium text-gray-700 border-2 p-2 w-100">{nft.Owner?.username}</p>
+                <h1 className="text-lg font-bold mt-3">Minted Date</h1>
+                <p className="text-lg font-medium text-gray-700 border-2 p-2 w-100">{nft.createdAt}</p>
+              </div>
+              <div className='flex justify-between p-5'>
+                <div className='flex  justify-around w-36'>
+                  <h1 className="text-lg font-bold">Price</h1>
+                  <p className="text-lg font-medium text-gray-700 ">{nft.price} ETH</p>
                 </div>
-                <div className="w-20 text-center">
-                  <h1 className="text-lg font-bold">{nft.Creator?.username||"admin"}</h1>
-                  <span className="text-lg font-medium text-gray-700">Owner</span>
-                </div>
+                <button className='rounded-full bg-red-500 w-24'>Buy</button>
               </div>
               </div>
             </Link>

@@ -104,6 +104,14 @@ const NftDetail = () => {
       console.log('NFT Transfer Complete')
     }
   },[isSuccess])
+  const [more, setMore] = useState(false)
+  const descriptionText = (value) => {
+    if(!more){
+      return value.slice(0, 100) + "...."
+    }else{
+      return value
+    }
+  }
 
   return(
     <div className="container mx-auto">
@@ -114,9 +122,9 @@ const NftDetail = () => {
       </Head>
       {nft && (
 
-      <div className='flex'>
-        <div className='group relative h-full border-2  p-2 rounded-md shadow-md h-100'>
-          <div className="w-72">
+      <div className='xl:flex justify-evenly'>
+        <div className='xl:w-1/2 '>
+          <div className="w-full border-2  p-2 m-5 rounded-md shadow-md h-100">
             {
               nft?.fileType === 'image' && (
               <img
@@ -135,32 +143,38 @@ const NftDetail = () => {
             }
             
           </div>
-        </div>
-        <div className='w-full p-10'>
-        <div className='flex w-full justify-between'>
-          <div>
-            <h1 className='text-7xl text-gray-700'>{nft.title}</h1>
-            <p className='mt-10'>description</p>
-            <h5 className='text-3xl text-gray-700'>{nft.description}</h5>
-          </div>
-          <div>
-          {data?.address === nft?.Owner?.walletAddress && 
-            <Dropdown label="Transfer NFT">
-              <Dropdown.Header>
-              <input className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline" 
-              id="name" 
-              name='name'
-              value={toAddress}
-              onChange={(e)=>setToAddress(e.target.value)}
-              onBlur={(e)=>setToAddress(e.target.value)}
-              placeholder="address"/>
-              <button className='' onClick={transferNft}>Transer</button>
-              </Dropdown.Header>
-            </Dropdown>
-          }
+          <div className='w-full'>
+          <audio controls className='m-auto'>
+              <source src="horse.ogg" type="audio/ogg"/>
+              <source src="horse.mp3" type="audio/mpeg"/>
+            </audio>
           </div>
         </div>
-        <div className='grid md:grid-cols-2 gap-4 mt-10 w-1/2'>
+        <div className='xl:w-1/3 p-10 relative'>
+          <div className='flex w-full justify-between pb-5 '>
+            <div className='w-96 text-center m-auto'>
+              <h1 className='text-7xl text-gray-700'>{nft.name}</h1>
+              <h5 className='text-xl text-gray-700'>{descriptionText(nft.description)}</h5>
+              {more === false ? <p className='cursor-pointer text-sky-400/100' onClick={()=>setMore(true)}>read more!</p> :<p className='cursor-pointer text-sky-400/100' onClick={()=>setMore(false)}>show less</p>}
+            </div>
+            <div className='absolute right-0'>
+            {data?.address === nft?.Owner?.walletAddress && 
+              <Dropdown label="Transfer NFT">
+                <Dropdown.Header>
+                <input className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline" 
+                id="name" 
+                name='name'
+                value={toAddress}
+                onChange={(e)=>setToAddress(e.target.value)}
+                onBlur={(e)=>setToAddress(e.target.value)}
+                placeholder="address"/>
+                <button className='' onClick={transferNft}>Transer</button>
+                </Dropdown.Header>
+              </Dropdown>
+            }
+            </div>
+          </div>
+        {/* <div className='grid md:grid-cols-2 gap-4 mt-10 w-1/2'>
           <h6 className='text-lg text-gray-500 font-bold'>NFT Type:</h6>
           <h6 className='text-lg text-gray-500'>{nft.nftType}</h6>
           <h6 className='text-lg text-gray-500 font-bold'>Owner:</h6>
@@ -175,7 +189,30 @@ const NftDetail = () => {
           }
           <h6 className='text-lg text-gray-500 font-bold'>Total Viewed:</h6>
           <h6 className='text-lg text-gray-500'>{nft.viewed}</h6>
-        </div>
+        </div> */}
+          <div className='flex justify-around'>
+            <h6 className='text-lg text-gray-700 font-bold p-2'>Minted Date</h6>
+            <h6 className='text-lg font-medium text-gray-700 border-2 p-2 w-100'>{nft.createdAt}</h6>
+          </div>
+          <div className='flex p-5'>
+            <div className='w-fit text-center mr-5'>
+              <h6 className='text-lg text-gray-700 font-bold'>Owner</h6>
+              <h6 className='text-lg font-medium'>{nft.Owner.username}</h6>
+            </div>
+            <div className='w-fit text-center ml-5'>
+              <h6 className='text-lg text-gray-700 font-bold'>Network</h6>
+              <h6 className='text-lg font-medium'>{nft.chain}</h6>
+            </div>
+          </div>
+          <div className='flex justify-around p-2'>
+            <h6 className='text-lg text-gray-700 font-bold p-2 w-48'>Contract Address</h6>
+            <h6 className='text-lg font-medium text-gray-700 border-2 p-2 w-60 text-center'>{"0x3298....3404"}</h6>
+          </div>
+          <div className='flex justify-around p-2'>
+            <h6 className='text-lg text-gray-700 font-bold p-2  w-48'>Token-ID</h6>
+            <h6 className='text-lg font-medium text-gray-700 border-2 p-2  w-60 text-center'>{nft.tokenId}</h6>
+          </div>
+            
         </div>
       </div>
       )}
