@@ -39,11 +39,11 @@ const Navbar = () => {
                         Home
                     </a>
                     </Link>
-                    <Link href='/collections'>
+                    {/* <Link href='/collections'>
                     <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
                         Collections
                     </a>
-                    </Link>
+                    </Link> */}
                     {data && (
                         <>
                         <Link href='/collections/my-collection'>
@@ -51,11 +51,11 @@ const Navbar = () => {
                                 My Collections
                             </a>
                         </Link>
-                        <Link href='/nfts/create/pending'>
+                        {/* <Link href='/nfts/create/pending'>
                             <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
                                 Pending NFTs
                             </a>
-                        </Link>
+                        </Link> */}
                         <Link href='/profile'>
                             <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-black font-bold items-center justify-center text-black'>
                                 Profile

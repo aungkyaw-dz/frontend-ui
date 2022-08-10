@@ -22,10 +22,10 @@ const Index = () => {
                 <button  className="border-2 rounded-full p-3">
                   Create a single NFT
                 </button>
-              </Link>
+              </Link> 
             </div>
             </div>
-            <div className="shadow-md w-3/4 m-auto h-96 flex justify-center items-end p-5" >
+            <div className="shadow-md w-3/4 m-auto h-96 flex justify-center items-end p-5 hidden" >
               <div className="">
                 <Link  href="create/bulk">
                   <button  className="border-2 rounded-full p-3">
