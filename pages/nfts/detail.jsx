@@ -130,14 +130,16 @@ const NftDetail = () => {
   const [more, setMore] = useState(false)
   const descriptionText = (value) => {
     if(!more){
-      console.log(value)
-      return value
+      return value.slice(0, 100) + "...."
     }else{
       return value
     }
   }
 
-  console.log(collection)
+  const shortText = (value)=>{
+    return value.slice(0, 4) + "...." + value.slice(-4)
+  }
+
   return(
     <div className="container mx-auto">
        <Head>
@@ -147,9 +149,9 @@ const NftDetail = () => {
       </Head>
       {collection && (
 
-      <div className='xl:flex justify-evenly'>
-        <div className='xl:w-1/2 '>
-          <div className="w-full border-2  p-2 m-5 rounded-md shadow-md h-100">
+      <div className='md:flex justify-evenly items-start'>
+        <div className='md:w-2/3 '>
+          <div className="w-96 h-100  border-2  p-2 m-auto rounded-md shadow-md">
             <img
               src={image}
               alt={collection.nfts[0]?.name}
@@ -161,26 +163,36 @@ const NftDetail = () => {
               <source src="horse.mp3" type="audio/mpeg"/>
             </audio>
           </div>
-          <div className='flex'>
-          <div className='pdf p-5'>
+          <div className='flex justify-around'>
+          <div className='pdf p-5 w-1/2'>
             <h1 className='text-lg text-gray-700 font-bold'>PFD File</h1>
-            <iframe title={pdf.name} src={pdf} width="100%" height="480" allow="autoplay"></iframe>
+            <div className='p-2 m-auto rounded-md shadow-md'>
+              <iframe title={pdf.name} src={pdf} width="100%" height="480" allow="autoplay"></iframe>
+            </div>
           </div>
-          <div className='word p-5'>
+          <div className='word p-5 w-1/2'>
             <h1 className='text-lg text-gray-700 font-bold'>Text File</h1>
-            <object data={word} width="300" height="200">
+            <div className='p-2 m-auto rounded-md shadow-md'>
+            <object data={word} width="100%" height="200">
               Not supported
             </object>
           </div>
           </div>
+          </div>
         </div>
-        <div className='xl:w-1/3 p-10 relative'>
+        <div className='md:w-1/3 p-2 relative '>
           <div className='flex w-full justify-between pb-5 '>
             <div className='w-96 text-center m-auto'>
               <h1 className='text-7xl text-gray-700'>{collection.nfts[0]?.name}</h1>
-              <h5 className='text-xl text-gray-700'>{descriptionText(collection.nfts[0]?.description)}</h5>
-              {more === false ? <p className='cursor-pointer text-sky-400/100' onClick={()=>setMore(true)}>read more!</p> :<p className='cursor-pointer text-sky-400/100' onClick={()=>setMore(false)}>show less</p>}
-            </div>
+              {collection.description.length > 100 ? (
+                <div>
+                  <h5 className='text-xl text-gray-700'>{descriptionText(collection.description)}</h5>
+                  {more === false ? <p className='cursor-pointer text-sky-400/100' onClick={()=>setMore(true)}>read more!</p> :<p className='cursor-pointer text-sky-400/100' onClick={()=>setMore(false)}>show less</p>}
+                </div>
+              ): (
+                <h5 className='text-xl text-gray-700'>{collection.description}</h5>
+              )}
+              </div>
             <div className='absolute right-0'>
             {/* {data?.address === collection?.Owner?.walletAddress && 
               <Dropdown label="Transfer NFT">
@@ -218,7 +230,7 @@ const NftDetail = () => {
             <h6 className='text-lg text-gray-700 font-bold p-2'>Minted Date</h6>
             <h6 className='text-lg font-medium text-gray-700 border-2 p-2 w-100'>{collection.nfts[0]?.createdAt}</h6>
           </div>
-          <div className='flex p-5'>
+          <div className='flex p-5 justify-around'>
             <div className='w-fit text-center mr-5'>
               <h6 className='text-lg text-gray-700 font-bold'>Owner</h6>
               <h6 className='text-lg font-medium'>{collection.nfts[0]?.Owner?.username}</h6>
@@ -230,9 +242,9 @@ const NftDetail = () => {
           </div>
           <div className='flex justify-around p-2'>
             <h6 className='text-lg text-gray-700 font-bold p-2 w-48'>Contract Address</h6>
-            <h6 className='text-lg font-medium text-gray-700 border-2 p-2 w-60 text-center'>{"0x3298....3404"}</h6>
+            <h6 className='text-lg font-medium text-gray-700 border-2 p-2 w-60 text-center'>{shortText(collection.address)}</h6>
           </div>
-          <div className='flex justify-around p-2'>
+          <div className='flex justify-around p-2 hidden'>
             <h6 className='text-lg text-gray-700 font-bold p-2  w-48'>Token-ID</h6>
             <h6 className='text-lg font-medium text-gray-700 border-2 p-2  w-60 text-center'>{collection.nfts[0]?.tokenId}</h6>
           </div>

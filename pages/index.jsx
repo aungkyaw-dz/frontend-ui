@@ -29,7 +29,7 @@ export default function Home() {
       setCollections(res.data.data)
     }
     const getMostViewNfts = async ()=>{
-      const res = await axios.get(`${API_URL}/nfts/list?status=${status}&item=${item}&price=${price}&categories=${categories}&chain=${chain}`)
+      const res = await axios.get(`${API_URL}/collections/list?status=${status}&item=${item}&price=${price}&categories=${categories}&chain=${chain}`)
       setNfts(res.data.data)
     }
     getMostViewNfts()
@@ -77,7 +77,7 @@ export default function Home() {
                         aria-label="Pills"
                         style="pills"
                       >
-                        <Tabs.Item title="New"/>
+                        <Tabs.Item title="New" onClick={()=>alert('af')}/>
                         <Tabs.Item title="Auction"/>
                       </Tabs.Group>
                     </div>
@@ -93,7 +93,7 @@ export default function Home() {
                         aria-label="Pills"
                         style="pills"
                       >
-                        <Tabs.Item title="Single" onClick={()=>alert("sadf")}/>
+                        <Tabs.Item title="Single"/>
                         <Tabs.Item title="Bundle"/>
                       </Tabs.Group>
                     </div>
@@ -112,14 +112,22 @@ export default function Home() {
                     value={price}
                     onChange={(e)=>setPrice(e.target.value)}
                     />
-                    <button type='submit'  className="focus:outline-none text-white bg-gray-700 hover:bg-gray-800 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-900 m-2">Apply</button>
                   </Sidebar.Item>
                 </Sidebar.Collapse>
                 <Sidebar.Collapse
                   label="Categories"
                 >
-                  <Sidebar.Item onClick={()=>setCategories('test')} active={categories === 'test'} className="cursor-pointer">
-                    Illusrations
+                  <Sidebar.Item onClick={()=>setCategories('Dog')} active={categories === 'Dog'} className="cursor-pointer">
+                    Dog
+                  </Sidebar.Item>
+                  <Sidebar.Item onClick={()=>setCategories('Computer')} active={categories === 'Computer'} className="cursor-pointer">
+                    Computer
+                  </Sidebar.Item>
+                  <Sidebar.Item onClick={()=>setCategories('Hotel')} active={categories === 'Hotel'} className="cursor-pointer">
+                    Hotel
+                  </Sidebar.Item>
+                  <Sidebar.Item onClick={()=>setCategories('pool')} active={categories === 'pool'} className="cursor-pointer">
+                    Swimming pool
                   </Sidebar.Item>
                 </Sidebar.Collapse>
                 <Sidebar.Collapse

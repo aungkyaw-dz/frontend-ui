@@ -35,7 +35,7 @@ const CollectionDetail = () => {
       <div className="container grid md:grid-cols-3 gap-4">
         {
           collections && collections?.map((collection)=>(
-            <Link key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`/collections/${collection.collectionId}`}>
+            <Link key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`/nfts/${collection.collectionId}`}>
               <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer overflow-hidden">
               <div className="flex">
                 <div className="w-32 h-32 p-5">
@@ -76,8 +76,8 @@ const CollectionDetail = () => {
                   <div className="absolute text-5xl font-bold top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">+{collection.nfts.length-1}</div>
                   }
                 <img
-                  src={collection.nfts[0]?.logo}
-                  alt={collection.nfts[0]?.name}
+                  src={collection.logo}
+                  alt={collection.nfts[1]?.name}
                   className="object-center object-cover"
 
                 />

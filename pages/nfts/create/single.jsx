@@ -56,7 +56,7 @@ const SingleCreate = () => {
       description: '',
       price: 0,
       type: '',
-      collectionId: "",
+      collectionId: 'create',
       collectionName: '',
       collectionDesc: '',
       facebook: '',
@@ -149,7 +149,6 @@ const SingleCreate = () => {
     const { data: wait, isError, isLoading } = useWaitForTransaction({
       hash: txData?.hash,
     })
-    console.log(wait)
   useEffect(()=>{
     if(metaData && !txData){
       try{
