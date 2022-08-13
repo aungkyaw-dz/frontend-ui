@@ -36,3 +36,6 @@ a {
 .container {
   padding: 2rem;
 }
+.max-w-sm{
+  max-width: 20rem!important;
+}

@@ -84,7 +84,6 @@ const SingleCreate = () => {
             formData.append("categories", categories[i].value)
           }
           let nftRes = await axios.post(`${API_URL}/nfts/create`, formData)
-          console.log(nftRes.data)
           setMetaData(nftRes.data.mintData)
           setCollectionId(nftRes.data.collection.collectionId)
           // setNftId(nftRes.data.data.nftId)
@@ -105,7 +104,6 @@ const SingleCreate = () => {
     },
     validationSchema: yup.object({
       name: yup.string().trim().required('Name is required'),
-      price: yup.number().required('Name is required'),
     }),
   });
 
@@ -400,7 +398,10 @@ const SingleCreate = () => {
             value={formik.values.amount}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder="external link"/>
+            placeholder="external link"
+            readOnly
+            disabled
+            />
         </div>
         <div className="mb-4 ">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
@@ -430,7 +431,7 @@ const SingleCreate = () => {
               <option value="sale">SALE</option>
           </select>
         </div>
-        <div className="mb-4 ">
+        <div className="mb-4 hidden">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">
             Price
           </label>

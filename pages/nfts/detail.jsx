@@ -3,12 +3,67 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Head from "next/head";
 import Link from 'next/link';
-import { Button, Dropdown } from 'flowbite-react';
-import { useAccount, useSendTransaction } from 'wagmi';
+import { Button, Dropdown, Modal } from 'flowbite-react';
+import { useAccount, useSendTransaction, useWaitForTransaction, useConnect } from 'wagmi';
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
-const contractABI = require('../../UrbanTechNFT.json')
+const contractABI = require('../../MarketPlace.json')
+const LeafContractABI = require('../../LeafContract.json')
 const API_URL = process.env.API_URL
+
+const Approve = ({collectionAddress, collectionId}) =>{
+  const web3 = createAlchemyWeb3(API_URL);
+  const contract = new web3.eth.Contract(LeafContractABI.abi, collectionAddress);
+  const marketAddress = process.env.MARKET_ADDRESS;
+  const { data } = useAccount()
+  const { connect, connectors, activeConnector } = useConnect()
+  useEffect(()=>{
+    if(!activeConnector){
+      connect(connectors[5])
+    }
+  },[])
+  const transactionParameters = {
+      to: collectionAddress,
+      from: data?.address,
+      'data': contract.methods.setApprovalForAll(marketAddress, true).encodeABI(),
+      gasPrice: 35000000000,
+  };
+  const { data: txData, isSuccess, sendTransaction } =
+          useSendTransaction({
+          request: transactionParameters,
+          onError(error) {
+              if(error.code == "INSUFFICIENT_FUNDS"){
+                  alert("Sorry, your wallet has insufficient funds. Please fund your wallet via Binance")
+              }
+              if(error.includes("insufficient")){
+                  alert("Sorry, your wallet has insufficient funds. Please fund your wallet via Binance")
+              }
+            },
+          onSuccess(data) {
+            const updateCollection = async ()=>{
+                const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, {approved: 1})
+            }
+            updateCollection()
+            console.log('Success', data)
+          },
+          })
+  const {data: wait} = useWaitForTransaction({
+    hash: txData?.hash,
+    onSuccess(data) {
+      window.location.reload()
+      console.log('Success', data)
+    },
+  })
+  const approve = ()=>{
+    if(!activeConnector){
+      connect(connectors[5])
+    }
+    sendTransaction()
+  }
+  return(
+    <Button onClick={approve}>Approve</Button>
+  )
+}
 
 const NftDetail = () => {
   const [collection, setCollection] = useState(null);
@@ -20,8 +75,14 @@ const NftDetail = () => {
   const [pdf, setPdf] = useState(null)
   const [word, setword] = useState(null)
   const [video, setVideo] = useState(null)
+  const [transactionData, setTranscationData] = useState(null)
+  const [price, setPrice] = useState(0.001)
+  const [show, setShow]= useState(false)
+  const [show1, setShow1]= useState(false)
+  const [method, setMethod] =useState()
+  const [status, setStatus]=useState("")
+  const [message, setMessage]=useState("")
 
-  
   useEffect(()=>{
     setCollectionId(localStorage.getItem('nftId'))
   })
@@ -54,42 +115,27 @@ const NftDetail = () => {
    }
     getNft()
   },[collectionId])
-  const contractAddress = process.env.CONTRACT_ADDRESS;
+  const contractAddress = process.env.MARKET_ADDRESS;
   const API_URL = process.env.API_URL;
   const web3 = createAlchemyWeb3(API_URL);
-  console.log(image)
-                console.log(pdf)
-                console.log(word)
+  const { connect, connectors, activeConnector } = useConnect()
+  
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
     // const receipt = await web3.eth.getTransactionReceipt({hash: txData.hash})
     setContact(true)
+    if(!activeConnector){
+      connect(connectors[5])
+    }
   },[])
-  // useEffect(()=>{
-  //   const updateTokenId = async()=>{
-  //     if(nft && collection.nfts[0]?.tokenId === 0){
-  //       const requestData = {
-  //           "jsonrpc":"2.0",
-  //           "method":"eth_getTransactionReceipt",
-  //           "params":[collection.nfts[0]?.txid],
-  //           "id":0
-  //       }
-  //       const receipt = await axios.post("https://polygon-mumbai.g.alchemy.com/v2/frVV_vKK1_Pf-JkOiqzzn3L9Z9RSKNh1", requestData)
-  //       const tokenId = web3.utils.hexToNumber(receipt.data.result?.logs[0].topics[3])
-  //       const updateData = {
-  //         tokenId: tokenId
-  //       }
-  //       const nftRes = await axios.post(`${API_URL}/nfts/update/${nftId}`, updateData)
-  //       setNft(nftRes.data.data)
-  //     }
-  //   }
-  //   updateTokenId()
-  // },[nft])
+
   const transactionParameters = {
       to: contractAddress,
       from: data?.address,
-      'data': toAddress? window.contract.methods.safeTransferFrom(data.address, toAddress, nft?.tokenId).encodeABI(): ""
+      value: method === "buy" ? `0x${(collection.price*1000000000000000000).toString(16)}`:`0x${(0).toString(16)}`,
+      'data': transactionData
   };
+
   const { data: txData, isSuccess, sendTransaction } =
           useSendTransaction({
           request: transactionParameters,
@@ -101,32 +147,58 @@ const NftDetail = () => {
                   alert("Sorry, your wallet has insufficient funds. Please fund your wallet via Binance")
               }
             },
+          onSuccess(res) {
+            const updateCollection = async ()=>{
+              setMessage("Please wait for the transaction to complete.")
+              if(method==="add"){
+                const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, 
+                {
+                  listed: 1, 
+                  price: price,
+                  txid: txData?.hash
+                })
+              }
+              if(method==="buy"){
+                const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, 
+                { approved: false, 
+                  listed: false,
+                  owner: data?.address
+                })
+              }
+            }
+            updateCollection()
+            console.log('Success', res)
+          },
           })
           
-  const transferNft = async () =>{
-    if(data){
-      sendTransaction()
-      const userAddress = data.address
-      if(userAddress== collection.nfts[0]?.Owner.walletAddress){
-        const updateData = {
-          user: userAddress,
-          transferTo: toAddress
+  const {data:wait} = useWaitForTransaction({
+    hash: txData?.hash
+  })
+
+
+  useEffect(()=>{
+    if(wait){
+      const updateCollection = async ()=>{
+        const logs = wait?.logs
+        if(method==="add"){
+          const marketId = web3.utils.toNumber(logs[logs.length-2]?.topics[1])
+          const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, 
+                {marketId: marketId}
+                )
+          if(!resData.data.error){
+            setStatus('complete')
+            setMessage('Successfully listed to marketplace')
+          }
         }
-        const res = await axios.post(`${API_URL}/nfts/transfer/${nftId}`, updateData)
-        if(res){
-          alert("transfer Complete")
+        if(method==="buy"){
+          setStatus('complete')
+          setMessage('Yay, successfully bought')
         }
       }
+      updateCollection()
+    }
+  },[wait])
 
-    }else{
-      alert("please Connect Wallet")
-    }
-  }
-  useEffect(()=>{
-    if(isSuccess){
-      console.log('NFT Transfer Complete')
-    }
-  },[isSuccess])
   const [more, setMore] = useState(false)
   const descriptionText = (value) => {
     if(!more){
@@ -137,8 +209,48 @@ const NftDetail = () => {
   }
 
   const shortText = (value)=>{
-    return value.slice(0, 4) + "...." + value.slice(-4)
+    return value?.slice(0, 4) + "...." + value?.slice(-4)
   }
+
+  useEffect(()=>{
+    if(method==="add"){
+      setTranscationData(window.contract.methods.createMarketItem(collection?.address , 1 , (price*1000000000000000000)).encodeABI())
+    }
+    if(method==='buy'){
+      setTranscationData(window.contract.methods.createMarketSale(collection?.address , collection?.marketId ).encodeABI())
+    }
+  },[method,price])
+
+  const addMarket = () =>{
+    setShow(true)
+    setMethod("add")
+  }
+
+  const confirm = () =>{
+    if(!activeConnector){
+      connect(connectors[5])
+    }
+    setStatus("wait")
+    setMessage("Please confirm in wallet")
+    sendTransaction()
+  }
+
+  const buyItem = ()=>{
+    setShow1(true)
+    setMethod("buy")
+    
+  }
+
+  const onClose = ()=> {
+    setShow(false)
+    setShow1(false)
+    setStatus("")
+    setMessage("")
+    setMethod()
+    window.location.reload()
+  }
+
+  
 
   return(
     <div className="container mx-auto">
@@ -151,11 +263,14 @@ const NftDetail = () => {
 
       <div className='md:flex justify-evenly items-start'>
         <div className='md:w-2/3 '>
-          <div className="w-96 h-100  border-2  p-2 m-auto rounded-md shadow-md">
+          <div className="w-100 h-100  border-2  p-2 m-auto rounded-md shadow-md">
+            <div className='flex justify-center'>
             <img
+              className='w-96'
               src={image}
               alt={collection.nfts[0]?.name}
             />  
+          </div>
           </div>
           <div className='w-full hidden'>
             <audio controls className='m-auto'>
@@ -233,7 +348,7 @@ const NftDetail = () => {
           <div className='flex p-5 justify-around'>
             <div className='w-fit text-center mr-5'>
               <h6 className='text-lg text-gray-700 font-bold'>Owner</h6>
-              <h6 className='text-lg font-medium'>{collection.nfts[0]?.Owner?.username}</h6>
+              <h6 className='text-lg font-medium'>{collection?.Owner?.username}</h6>
             </div>
             <div className='w-fit text-center ml-5'>
               <h6 className='text-lg text-gray-700 font-bold'>Network</h6>
@@ -248,7 +363,156 @@ const NftDetail = () => {
             <h6 className='text-lg text-gray-700 font-bold p-2  w-48'>Token-ID</h6>
             <h6 className='text-lg font-medium text-gray-700 border-2 p-2  w-60 text-center'>{collection.nfts[0]?.tokenId}</h6>
           </div>
-            
+          {
+            (collection.Owner?.walletAddress === data?.address && collection.approved && !collection.listed) &&
+            (
+              <div className='flex justify-end p-5'>
+                <Button onClick={()=>addMarket()}>Add to Market</Button>
+                <div className=''>
+
+                  <Modal
+                    show={show}
+                    position="center"
+                    onClose={onClose}
+                    size="sm"
+                    popup={false}
+                  >
+                    <Modal.Header>
+                      Add to market
+                    </Modal.Header>
+                    <Modal.Body>
+                      {
+                        !status && (
+                        <div className=" p-5 mb-4 ">
+                          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">
+                            Price
+                          </label>
+                          <input id="price" className='className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline"' value={price} onChange={(e)=>{setPrice(e.target.value)}}/>
+                        </div>
+                        ) 
+                      }
+                      
+                    </Modal.Body>
+                    <Modal.Body>
+                      {
+                        message && (
+                          <div>
+                            { status === 'wait' ?
+                            <svg role="status" className="w-8 h-8 m-auto text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                              <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                            </svg>:
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            
+                            
+                            }
+                            <p className='text-sm font-medium text-gray-700 p-5 pt-2 w-100 text-center'>{message}</p>
+                          </div>
+                        )
+                      }
+                    </Modal.Body>
+                    <Modal.Footer>
+                    {
+                        !message && (
+                          <div className='w-full'>
+                          <div className='flex justify-between w-100 grow  p-5'>
+                            <Button 
+                              onClick={confirm}
+                            >
+                              Confirm
+                            </Button>
+                            <Button
+                              color="gray"
+                              onClick={onClose}
+                            >
+                              Cancel
+                            </Button>
+                            </div>
+                          </div>
+                        )
+                      }
+                    </Modal.Footer>
+                  </Modal>
+                </div>
+              </div>
+            )
+          }
+
+{
+            (collection.Owner?.walletAddress === data?.address && !collection.approved) &&
+            (
+              <div className='flex justify-end p-5'>
+                <Approve collectionAddress={collection?.address} collectionId={collection?.collectionId}/>
+              </div>
+            )
+          }
+
+          
+
+          {
+            (collection.Owner?.walletAddress != data?.address && collection.listed) &&
+            (
+              <div className='flex justify-end p-5'>
+                <Button onClick={buyItem}>Buy</Button>
+                <Modal
+                    show={show1}
+                    position="center"
+                    onClose={onClose}
+                    size="sm"
+                    popup={false}
+                  >
+                    <Modal.Header>
+                      Confirmation to buy
+                    </Modal.Header>
+                    <Modal.Body>
+                      {
+                        message && (
+                          <div>
+                            { status === 'wait' ?
+                            <svg role="status" className="w-8 h-8 m-auto text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                              <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                            </svg>:
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            
+                            
+                            }
+                            <p className='text-sm font-medium text-gray-700 p-5 pt-2 w-100 text-center'>{message}</p>
+                          </div>
+                        )
+                      }
+                      
+                    </Modal.Body>
+                    <Modal.Footer className="justify-around">
+                      {
+                        !message && (
+                          <div className='w-full'>
+                          <div className='flex justify-between w-100 grow  p-5'>
+                            <Button 
+                              onClick={confirm}
+                            >
+                              Confirm
+                            </Button>
+                            <Button
+                              color="gray"
+                              onClick={onClose}
+                            >
+                              Cancel
+                            </Button>
+                            </div>
+                          </div>
+                        )
+                      }
+                    </Modal.Footer>
+                  </Modal>
+              </div>
+            )
+          }
+
         </div>
       </div>
       )}
