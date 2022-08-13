@@ -7,7 +7,7 @@ export default function Gallery({nfts, name}) {
   return (
       <div className="nft-gallery">
         {/* <h1 className='text-4xl font-bold p-5'>{name.toUpperCase()} NFTs</h1> */}
-        <div className="container grid lg:grid-cols-3  gap-4">
+        <div className="container grid lg:grid-cols-4  gap-4">
         {
           nfts && nfts?.map((nft)=>(
             <div key={nft?.collectionId}>
@@ -31,17 +31,22 @@ export default function Gallery({nfts, name}) {
                 <h1 className="text-lg font-bold mt-3">Description</h1>
                 <p className="text-lg font-medium text-gray-700 border-2 p-2 w-100 h-24 overflow-auto">{nft.description}</p>
                 <h1 className="text-lg font-bold mt-3">Owner</h1>
-                <p className="text-lg font-medium text-gray-700 border-2 p-2 w-100">{nft.Creator?.username}</p>
+                <p className="text-lg font-medium text-gray-700 border-2 p-2 w-100">{nft.Owner?.username}</p>
                 <h1 className="text-lg font-bold mt-3">Minted Date</h1>
                 <p className="text-lg font-medium text-gray-700 border-2 p-2 w-100">{nft.createdAt}</p>
               </div>
-              <div className='flex justify-between p-5'>
-                <div className='flex  justify-around w-36'>
-                  <h1 className="text-lg font-bold">Price</h1>
-                  <p className="text-lg font-medium text-gray-700 ">{nft.nfts[0].price} ETH</p>
+              {nft.listed &&
+              (
+                <div className='justify-between p-5'>
+                  <div className='flex mb-5  justify-around w-full'>
+                    <h1 className="text-lg font-bold">Price</h1>
+                    <p className="text-lg font-medium text-gray-700 ">{nft?.price} MATIC</p>
+                  </div>
+                  <button className='rounded-full bg-red-500 w-24'>Buy</button>
                 </div>
-                <button className='rounded-full bg-red-500 w-24'>Buy</button>
-              </div>
+              )
+              }
+              
               </div>
             </Link>
             </div>
