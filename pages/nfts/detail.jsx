@@ -82,7 +82,7 @@ const NftDetail = () => {
   const [method, setMethod] =useState()
   const [status, setStatus]=useState("")
   const [message, setMessage]=useState("")
-
+  console.log(video?.split('.').pop())
   useEffect(()=>{
     setCollectionId(localStorage.getItem('nftId'))
   })
@@ -260,7 +260,7 @@ const NftDetail = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {collection && (
-
+      <div>
       <div className='md:flex justify-evenly items-start'>
         <div className='md:w-2/3 '>
           <div className="w-100 h-100  border-2  p-2 m-auto rounded-md shadow-md">
@@ -272,33 +272,17 @@ const NftDetail = () => {
             />  
           </div>
           </div>
-          <div className='w-full hidden'>
-            <audio controls className='m-auto'>
-              <source src="horse.ogg" type="audio/ogg"/>
-              <source src="horse.mp3" type="audio/mpeg"/>
-            </audio>
-          </div>
-          <div className='flex justify-around'>
-          <div className='pdf p-5 w-1/2'>
-            <h1 className='text-lg text-gray-700 font-bold'>PFD File</h1>
-            <div className='p-2 m-auto rounded-md shadow-md'>
-              <iframe title={pdf.name} src={pdf} width="100%" height="480" allow="autoplay"></iframe>
-            </div>
-          </div>
-          <div className='word p-5 w-1/2'>
-            <h1 className='text-lg text-gray-700 font-bold'>Text File</h1>
-            <div className='p-2 m-auto rounded-md shadow-md'>
-            <object data={word} width="100%" height="200">
-              Not supported
-            </object>
-          </div>
-          </div>
-          </div>
+          
+          
         </div>
         <div className='md:w-1/3 p-2 relative '>
           <div className='flex w-full justify-between pb-5 '>
             <div className='w-96 text-center m-auto'>
               <h1 className='text-7xl text-gray-700'>{collection.nfts[0]?.name}</h1>
+              <div className="flex justify-between">
+                <Button className="w-48 text-center" disabled={!collection.facebook} gradientMonochrome="teal" pill={true} href={collection.facebook}>FaceBook</Button>
+                <Button className="w-48 text-center" disabled={!collection.discord} gradientMonochrome="pink" pill={true} href={collection.discord}>Discord</Button>
+              </div>
               {collection.description.length > 100 ? (
                 <div>
                   <h5 className='text-xl text-gray-700'>{descriptionText(collection.description)}</h5>
@@ -514,6 +498,41 @@ const NftDetail = () => {
           }
 
         </div>
+        </div>
+        <div className='flex justify-around'>
+            <div className='pdf p-5 w-1/2'>
+              <h1 className='text-lg text-gray-700  p-5 font-bold'>PFD File</h1>
+              <div className='p-2 m-auto rounded-md shadow-md'>
+                <iframe title={pdf.name} src={pdf} width="100%" height="500" allow="autoplay"></iframe>
+              </div>
+            </div>
+            <div className='word p-5 w-1/2'>
+              <h1 className='text-lg text-gray-700  p-5 font-bold'>Text File</h1>
+              <div className='p-2 m-auto rounded-md shadow-md'>
+                <object data={word} width="100%" height="500">
+                  Not supported
+                </object>
+              </div>
+            </div>
+          </div>
+          {
+            video?.split('.').pop() === "mp4" ?(
+              <div className='word p-5 w-full'>
+                <h1 className='text-lg text-gray-700 p-5 font-bold'>Video File</h1>
+                <video controls  width="100%" height="500">
+                  <source src={video} />
+                </video>
+              </div>
+            ):(
+              <div className='word p-5 w-full'>
+                <h1 className='text-lg text-gray-700 p-5 font-bold'>Audio File</h1>
+                <audio controls  width="100">
+                  <source src={video} />
+                </audio>
+              </div>
+            )
+          }
+          
       </div>
       )}
     </div>

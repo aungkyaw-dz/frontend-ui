@@ -332,7 +332,7 @@ const SingleCreate = () => {
             <input
                 id="word"
                 type="file"
-                accept='.txt, .xlsx, .xls, .csv'
+                accept='.txt'
                 onChange={(e)=> uploadWord(e)}
                 className="hidden"
               />
@@ -353,7 +353,7 @@ const SingleCreate = () => {
               />
             <label htmlFor="mp3">upload Mp3</label>
           </div>
-          <div className="bg-gray-500 shadow-md rounded p-5 m-2 text-white"
+          <div className="bg-white shadow-md rounded p-5 m-2 "
             onDragEnter={(e) => handleDragEnter(e)}
             onDragOver={(e) => handleDragOver(e)}
             onDragLeave={(e) => handleDragLeave(e)}
@@ -362,13 +362,11 @@ const SingleCreate = () => {
             <input
                 id="mp4"
                 type="file"
-                accept='.jpg, .jpeg, .png, .gif, .mp4, .svg, .pdf, .txt, .xlsx, .xls, .csv'
+                accept='.mp4, .mp3'
                 onChange={(e)=> uploadMp4(e)}
                 className="hidden"
-                disabled={true}
-                readOnly
               />
-            <label htmlFor="mp4">{mp4?.name||"Upload Video"}</label>
+            <label htmlFor="mp4">{mp4?.name||"Upload Mp3/Mp4"}</label>
           </div>
         
         </div>
@@ -415,6 +413,30 @@ const SingleCreate = () => {
             onBlur={formik.handleBlur}
             rows="4"  
             placeholder="NFT Description"></textarea>
+        </div>
+        <div className="mb-4 ">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
+            FaceBook
+          </label>
+          <textarea className="block p-2.5 w-full text-sm text-gray-900 bg-gray-500-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-500-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            id="facebook" 
+            name='facebook'
+            value={formik.values.facebook}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            placeholder="Facebook"></textarea>
+        </div>
+        <div className="mb-4 ">
+          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
+            Dsicord
+          </label>
+          <textarea className="block p-2.5 w-full text-sm text-gray-900 bg-gray-500-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-500-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            id="discord" 
+            name='discord'
+            value={formik.values.discord}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            placeholder="Discord"></textarea>
         </div>
         <div className="mb-4 hidden">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="collectionId">

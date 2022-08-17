@@ -79,7 +79,7 @@ const Navbar = () => {
                         
                         </>
                     )}
-                    <Link href='/nfts/create'>
+                    <Link href='/nfts/create/single'>
                         <a className='lg:inline-flex lg:w-auto w-full  px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white'>
                             Create NFT
                         </a>
