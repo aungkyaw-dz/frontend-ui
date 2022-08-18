@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { Field, useFormik } from 'formik';
 import * as yup from 'yup';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { CreateMetaData } from '../../../utils/pinata';
 import { useAccount, useSendTransaction, useWaitForTransaction, useConnect } from 'wagmi';
 import axios from 'axios';
@@ -184,6 +184,11 @@ const SingleCreate = () => {
     updateTokenId()
   },[wait])
 
+  const ImageInput = useRef(null)
+  const pdfInput = useRef(null)
+  const wordInput = useRef(null)
+  const videoInput = useRef(null)
+
   const uploadImg =  (e) => {
     if(e.target.files && e.target.files[0]){
       var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
@@ -288,11 +293,12 @@ const SingleCreate = () => {
         SVG. Max size: 25 MB
       </p>
       <div className='lg:w-1/2 grid grid-cols-3 gap-4 text-center justify-center items-center'>
-        <div className="bg-white shadow-md rounded col-span-2 overflow-hidden pb--5"
+        <div className="bg-white shadow-md rounded col-span-2 overflow-hidden pb-5 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
           onDragEnter={(e) => handleDragEnter(e)}
           onDragOver={(e) => handleDragOver(e)}
           onDragLeave={(e) => handleDragLeave(e)}
           onDrop={(e) => handleDrop(e)}
+          onClick={()=>ImageInput.current.click()}
         >
           <div className='p-1 m-2'>
             {imgUrl && <img src={imgUrl} alt='preview' className='h-48 w-auto m-auto mb-5'/>}
@@ -304,15 +310,17 @@ const SingleCreate = () => {
               accept='.jpg, .jpeg, .png, .gif, .svg'
               onChange={(e)=> uploadImg(e)}
               className="hidden"
+              ref={ImageInput}
             />
-          <label htmlFor="img"  className='p-5 h-96'>Upload Image</label>
+          <label htmlFor="img"  className='p-5 h-96 cursor-pointer'>Upload Image</label>
         </div>
         <div className='bg-white col-span1'>
-          <div className="bg-white shadow-md rounded p-5 m-2"
+          <div className="bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
             onDragEnter={(e) => handleDragEnter(e)}
             onDragOver={(e) => handleDragOver(e)}
             onDragLeave={(e) => handleDragLeave(e)}
             onDrop={(e) => handleDrop(e)}
+            onClick={()=>pdfInput.current.click()}
           >
             <input
                 id="pdf"
@@ -320,14 +328,16 @@ const SingleCreate = () => {
                 accept='.pdf'
                 onChange={(e)=> uploadPdf(e)}
                 className="hidden"
+                ref={pdfInput}
               />
             <label htmlFor="pdf">{pdf?.name||"Upload PDF"}</label>
           </div>
-          <div className="bg-white shadow-md rounded p-5 m-2"
+          <div className="bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
             onDragEnter={(e) => handleDragEnter(e)}
             onDragOver={(e) => handleDragOver(e)}
             onDragLeave={(e) => handleDragLeave(e)}
             onDrop={(e) => handleDrop(e)}
+            onClick={()=>wordInput.current.click()}
           >
             <input
                 id="word"
@@ -335,14 +345,16 @@ const SingleCreate = () => {
                 accept='.txt'
                 onChange={(e)=> uploadWord(e)}
                 className="hidden"
+                ref={wordInput}
               />
             <label htmlFor="word">{word?.name||"Upload Text"}</label>
           </div>
-          <div className="bg-white shadow-md rounded p-5 m-2 hidden"
+          <div className="bg-white shadow-md rounded p-5 m-2 hidden cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
             onDragEnter={(e) => handleDragEnter(e)}
             onDragOver={(e) => handleDragOver(e)}
             onDragLeave={(e) => handleDragLeave(e)}
             onDrop={(e) => handleDrop(e)}
+            onClick={()=>wordInput.current.click()}
           >
             <input
                 id="mp3"
@@ -350,21 +362,24 @@ const SingleCreate = () => {
                 accept='.jpg, .jpeg, .png, .gif, .mp4, .svg, .pdf, .txt, .xlsx, .xls, .csv'
                 onChange={(e)=> uploadMp3(e)}
                 className="hidden"
+                ref={wordInput}
               />
             <label htmlFor="mp3">upload Mp3</label>
           </div>
-          <div className="bg-white shadow-md rounded p-5 m-2 "
+          <div className="bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
             onDragEnter={(e) => handleDragEnter(e)}
             onDragOver={(e) => handleDragOver(e)}
             onDragLeave={(e) => handleDragLeave(e)}
             onDrop={(e) => handleDrop(e)}
-          >
+            onClick={()=>videoInput.current.click()}
+            >
             <input
                 id="mp4"
                 type="file"
                 accept='.mp4, .mp3'
                 onChange={(e)=> uploadMp4(e)}
                 className="hidden"
+                ref={videoInput}
               />
             <label htmlFor="mp4">{mp4?.name||"Upload Mp3/Mp4"}</label>
           </div>
