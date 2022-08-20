@@ -59,7 +59,7 @@ export default function Home() {
         {favourite.length >0 && 
           <CollectionGallery collections={favourite} name="favourite" />
         } */}
-        <div className="w-fit flex ">
+        <div className="w-full flex ">
           <Sidebar aria-label="Sidebar with multi-level dropdown example " className="p-5 bg-gray-500">
             <Sidebar.Items>
               <Sidebar.ItemGroup>

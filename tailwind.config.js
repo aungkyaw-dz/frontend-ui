@@ -7,7 +7,8 @@ module.exports = {
   theme: {
     extend: {
       backgroundImage: {
-        'nav_background': "url('../asset/images/nav_background.png')" 
+        'nav_background': "url('../asset/images/nav_background.png')" ,
+        'footer_background': "url('../asset/images/footer_background.png')" 
       }
     },
   },

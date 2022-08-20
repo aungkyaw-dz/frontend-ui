@@ -15,6 +15,7 @@ import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { publicProvider } from 'wagmi/providers/public';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import Footer from '../components/footer';
 
 const CustomAvatar = ({ address,ensImage, size })=>{
   const [img, setImg] = useState()
@@ -69,6 +70,7 @@ function MyApp({ Component, pageProps }) {
       <RainbowKitProvider avatar={CustomAvatar}  chains={chains} coolMode>
         <Navbar/>
         <Component {...pageProps} />  
+        <Footer/>
       </RainbowKitProvider>
     </WagmiConfig >
   )
