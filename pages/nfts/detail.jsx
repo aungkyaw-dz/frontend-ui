@@ -4,6 +4,7 @@ import Head from "next/head";
 import { Button, Dropdown, Modal } from 'flowbite-react';
 import { useAccount, useSendTransaction, useWaitForTransaction, useConnect, useDisconnect } from 'wagmi';
 import { MarketPlaceABI, LeafABI } from '../../utils/abi';
+import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
 const contractABI = MarketPlaceABI
@@ -299,6 +300,9 @@ const NftDetail = () => {
   }
 
   
+  const docs = [
+    { uri: word },
+  ]
 
   return(
     <div className="container mx-auto">
@@ -593,7 +597,8 @@ const NftDetail = () => {
                     {/* <object data={word} width="100%" height="500">
                       Not supported
                     </object> */}
-                    <iframe title={word.name} src={word} width="100%" height="500" allow="autoplay"></iframe>
+                    <DocViewer pluginRenderers={DocViewerRenderers} documents={docs} style={{width: "100%", height: 500}} />
+                    {/* <iframe title={word.name} src={word} width="100%" height="500" allowfullscreen webkitallowfullscreen></iframe> */}
                   </div>
                 ):(
                   <div className="hidden bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { Button } from 'flowbite-react'
 import LinkTo from '../linkto'
 
-export default function Gallery({nfts, name}) {
+export default function Gallery({nfts, name, limit, changeLimit}) {
   const [image, setImage] = useState()
   return (
       <div className="nft-gallery w-full">
@@ -57,12 +57,12 @@ export default function Gallery({nfts, name}) {
           ))
         }
       </div>
-      {/* <div className='w-full text-right w-full'>
+      <div className='w-full text-right w-full'>
+        {nfts.length >= limit && (
+          <Button onClick={changeLimit}>show More</Button>
+        )}
         
-        <LinkTo className="text-right w-full group relative border-2 border-slate-400 p-2 rounded-md" href={`nfts/${name}`}>
-          Explore More
-        </LinkTo>
-      </div> */}
+      </div>
       <hr className='m-5'/>
       </div>
 

@@ -184,7 +184,7 @@ const SingleCreate = () => {
           const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, updateData)
           if(!resData.error){
             setStatus('complete')
-            setMessage('Transcation is Complete')
+            setMsg('Transcation is Complete')
             // window.location.href = `/nfts/${nftId}`
           }
         }
@@ -425,9 +425,6 @@ const SingleCreate = () => {
             value={formik.values.amount}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder="external link"
-            readOnly
-            disabled
             />
         </div>
         <div className="mb-4 ">

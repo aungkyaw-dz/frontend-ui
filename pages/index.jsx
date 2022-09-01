@@ -19,23 +19,26 @@ export default function Home() {
   const [categories, setCategories] = useState('')
   const [chain, setChain] = useState('')
   const API_URL = process.env.API_URL
+  const [limit, setLimit] = useState(10)
   useEffect(()=>{
-    const getfeatured = async ()=>{
-      const res = await axios.get(`${API_URL}/collections/featured`)
-      setfeatured(res.data.data)
-    }
-    const getFavourite = async ()=>{
-      const res = await axios.get(`${API_URL}/collections/list`)
-      setCollections(res.data.data)
-    }
+    // const getfeatured = async ()=>{
+    //   const res = await axios.get(`${API_URL}/collections/featured`)
+    //   setfeatured(res.data.data)
+    // }
+    // const getFavourite = async ()=>{
+    //   const res = await axios.get(`${API_URL}/collections/list`)
+    //   setCollections(res.data.data)
+    // }
     const getMostViewNfts = async ()=>{
-      const res = await axios.get(`${API_URL}/collections/list?status=${status}&item=${item}&price=${price}&categories=${categories}&chain=${chain}`)
+      const res = await axios.get(`${API_URL}/collections/list?status=${status}&item=${item}&price=${price}&categories=${categories}&chain=${chain}&limit=${limit}`)
       setNfts(res.data.data)
     }
     getMostViewNfts()
-    getfeatured()
-    getFavourite()
-  },[categories, chain, price, item, status])
+    // getfeatured()
+    // getFavourite()
+  },[categories, chain, price, item, status, limit])
+
+  const changeLimit=()=> setLimit(limit+10)
 
   return (
     <div className={styles.container}>
@@ -155,7 +158,7 @@ export default function Home() {
             </Sidebar.Items>
           </Sidebar>
           {nfts.length >0 && 
-            <NftGallery nfts={nfts} name="most viewed" />
+            <NftGallery nfts={nfts} name="most viewed" limit={limit} changeLimit={changeLimit}/>
           }
         </div>
         
