@@ -1,7 +1,6 @@
 import axios from 'axios'
 import { useEffect, useState, useMemo, useRef } from 'react'
 import Head from "next/head";
-import Link from 'next/link';
 import Image from 'next/image'
 import { useAccount, useSendTransaction, useWaitForTransaction, useConnect } from 'wagmi';
 import {
@@ -16,7 +15,9 @@ import {
 } from '@tanstack/react-table'
 
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
-const contractABI = require('../../../UrbanTechNFT.json')
+// const contractABI = require('../../../UrbanTechNFT.json')
+import { contractABI } from '../../../utils/abi';
+
 
 const IndeterminateCheckbox =({indeterminate, className = '', ...rest})=> {
   const ref = useRef(null)

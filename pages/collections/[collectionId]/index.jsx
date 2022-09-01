@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Head from "next/head";
-import Link from 'next/link';
+import LinkTo from '../../../components/linkto';
 
 const CollectionDetail = () => {
   const router = useRouter()
@@ -60,7 +60,7 @@ const CollectionDetail = () => {
             <h1 className='text-3xl text-gray-500 '>{collection.description}</h1>
           </div>
           <div className='p-5'>
-            <Link href={`/collections/${collection.name}/edit`} className='text-3xl text-gray-500'>EDIT</Link>
+            <LinkTo href={`/collections/${collection.name}/edit`} className='text-3xl text-gray-500'>EDIT</LinkTo>
           </div>
         </div>
         <div className="flex justify-between p-5">
@@ -81,7 +81,7 @@ const CollectionDetail = () => {
           <h1 className='text-3xl text-gray-500'>NFTs</h1>
           <div className='container grid md:grid-cols-4 gap-4 p-5'>
             {collection.nfts && collection.nfts.map((nft)=>(
-              <Link key={nft?.nftId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`/nfts/${nft.nftId}`}>
+              <LinkTo key={nft?.nftId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`/nfts/${nft.nftId}`}>
                 <div className='group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer overflow-hidden'>
                   <div className="w-full">
                     <img
@@ -96,7 +96,7 @@ const CollectionDetail = () => {
                     {nft.description}
                   </h3>
                 </div>
-              </Link>
+              </LinkTo>
             ))}
           </div>
         </div>

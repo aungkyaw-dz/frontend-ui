@@ -1,14 +1,13 @@
 import axios from 'axios'
-import { useRouter } from 'next/router'
 import { useRef, useEffect, useState } from 'react'
 import Head from "next/head";
-import Link from 'next/link';
 import { Button, Dropdown, Modal } from 'flowbite-react';
-import { useAccount, useSendTransaction, useWaitForTransaction, useConnect } from 'wagmi';
+import { useAccount, useSendTransaction, useWaitForTransaction, useConnect, useDisconnect } from 'wagmi';
+import { MarketPlaceABI, LeafABI } from '../../utils/abi';
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
-const contractABI = require('../../MarketPlace.json')
-const LeafContractABI = require('../../LeafContract.json')
+const contractABI = MarketPlaceABI
+const LeafContractABI = LeafABI
 const API_URL = process.env.API_URL
 
 const Approve = ({collectionAddress, collectionId}) =>{
@@ -50,6 +49,7 @@ const Approve = ({collectionAddress, collectionId}) =>{
       console.log('Success', data)
     },
   })
+  
   const approve = ()=>{
     if(!activeConnector){
       connect(connectors[5])
@@ -62,9 +62,12 @@ const Approve = ({collectionAddress, collectionId}) =>{
 }
 
 const NftDetail = () => {
+
+  const { data} = useAccount()
+  const { connect, connectors, activeConnector, isConnecting} = useConnect()
+  console.log(isConnecting)
   const [collection, setCollection] = useState(null);
   const [toAddress, setToAddress]= useState("")
-  const { data } = useAccount()
   const [contract, setContact]= useState(false)
   const [collectionId, setCollectionId] = useState(null)
   const [image, setImage] = useState(null)
@@ -78,9 +81,11 @@ const NftDetail = () => {
   const [method, setMethod] =useState()
   const [status, setStatus]=useState("")
   const [message, setMessage]=useState("")
+
   useEffect(()=>{
     setCollectionId(localStorage.getItem('nftId'))
   })
+
   useEffect(()=>{
     const getNft = async () => {
       try{
@@ -110,10 +115,10 @@ const NftDetail = () => {
    }
     getNft()
   },[collectionId])
+
   const contractAddress = process.env.MARKET_ADDRESS;
   const API_URL = process.env.API_URL;
   const web3 = createAlchemyWeb3(API_URL);
-  const { connect, connectors, activeConnector } = useConnect()
   
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
@@ -243,9 +248,6 @@ const NftDetail = () => {
     }
     
   }
-
-  console.log(status)
-  console.log(message)
 
   const onClose = ()=> {
     setShow(false)
@@ -434,11 +436,11 @@ const NftDetail = () => {
                             </svg>:
                             (status === "complete" ? (
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ): (
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ))
                             
@@ -513,11 +515,11 @@ const NftDetail = () => {
                             </svg>:
                             (status === "complete" ? (
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ): (
                               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ))
                             }
@@ -588,9 +590,10 @@ const NftDetail = () => {
                   <div className='p-5 m-auto rounded-md shadow-md'>
                     <h1 className='text-lg text-gray-700  p-5 font-bold'>Text File</h1>
 
-                    <object data={word} width="100%" height="500">
+                    {/* <object data={word} width="100%" height="500">
                       Not supported
-                    </object>
+                    </object> */}
+                    <iframe title={word.name} src={word} width="100%" height="500" allow="autoplay"></iframe>
                   </div>
                 ):(
                   <div className="hidden bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"

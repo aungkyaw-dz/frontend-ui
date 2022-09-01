@@ -1,24 +1,24 @@
-import Link from 'next/link';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount } from 'wagmi';
+import { useAccount, useConnect } from 'wagmi';
 import { useEffect } from 'react';
 import axios from 'axios';
+import LinkTo from './linkto';
 
 const Navbar = () => {
-    const { data } = useAccount()
+    const { data } = useAccount();
     const API_URL = process.env.API_URL
+    
     useEffect(()=>{
         const getUser = async () =>{
             await axios.post(`${API_URL}/users/get-or-create`, {walletAddress: data?.address})
             }
         if(data?.address){
             getUser()
-            }
+        }
     },[data?.address])
-
     return(
         <nav className="flex items-center flex-wrap bg-gray-700 p-5 bg-nav_background">
-            <Link href='/'>
+            <LinkTo href='/'>
             <a className='inline-flex items-center p-2 ml-10 '>
                 <svg
                 viewBox='0 0 24 24'
@@ -31,59 +31,59 @@ const Navbar = () => {
                 Kob Startup Project
                 </span>
             </a>
-            </Link>
+            </LinkTo>
             <div className='hidden w-full lg:inline-flex lg:flex-grow lg:w-auto'>
                 <div className='lg:inline-flex lg:flex-row lg:ml-auto lg:w-auto w-full lg:items-center items-start  flex flex-col lg:h-auto'>
-                    <Link href='/#'>
+                    <LinkTo href='/test'>
                     <a className='lg:inline-flex lg:w-auto w-full px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white '>
                         Explore
                     </a>
-                    </Link>
-                    <Link href='/#'>
+                    </LinkTo>
+                    <LinkTo href='/index1'>
                     <a className='lg:inline-flex lg:w-auto w-full px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white '>
                         Stats
                     </a>
-                    </Link>
-                    <Link href='/#'>
+                    </LinkTo>
+                    <LinkTo href='/#'>
                     <a className='lg:inline-flex lg:w-auto w-full px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white '>
                         Resource
                     </a>
-                    </Link>
-                    <Link href='/#'>
+                    </LinkTo>
+                    <LinkTo href='/#'>
                     <a className='lg:inline-flex lg:w-auto w-full px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white '>
                         Community
                     </a>
-                    </Link>
-                    {/* <Link href='/collections'>
+                    </LinkTo>
+                    {/* <LinkTo href='/collections'>
                     <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white'>
                         Collections
                     </a>
-                    </Link> */}
+                    </LinkTo> */}
                     {data && (
                         <>
-                        <Link href='/collections/my-collection'>
+                        <LinkTo href='/collections/my-collection'>
                             <a className='lg:inline-flex lg:w-auto w-full  px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white'>
                                 My Collections
                             </a>
-                        </Link>
-                        {/* <Link href='/nfts/create/pending'>
+                        </LinkTo>
+                        {/* <LinkTo href='/nfts/create/pending'>
                             <a className='lg:inline-flex lg:w-auto w-full shadow-md px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white'>
                                 Pending NFTs
                             </a>
-                        </Link> */}
-                        <Link href='/profile'>
+                        </LinkTo> */}
+                        <LinkTo href='/profile'>
                             <a className='lg:inline-flex lg:w-auto w-full  px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white'>
                                 Profile
                             </a>
-                        </Link>
+                        </LinkTo>
                         
                         </>
                     )}
-                    <Link href='/nfts/create/single'>
+                    <LinkTo href='/nfts/create/single'>
                         <a className='lg:inline-flex lg:w-auto w-full  px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white'>
                             Create NFT
                         </a>
-                    </Link>
+                    </LinkTo>
                     <ConnectButton className="shadow-md" chainStatus="icon" accountStatus="avatar" showBalance={false}/>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
+import LinkTo from '../linkto'
 export default function Gallery({collections, name}) {
   return (
       <div className="collection-gallery">
@@ -9,7 +9,7 @@ export default function Gallery({collections, name}) {
         {
           collections && collections?.map((collection)=>(
             <div key={collection?.collectionId}>
-            <Link key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`collections/${collection.collectionId}`}>
+            <LinkTo key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`collections/${collection.collectionId}`}>
               <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer overflow-hidden">
               <div className="flex">
                 <div className="w-32 h-32 p-5">
@@ -57,16 +57,16 @@ export default function Gallery({collections, name}) {
                 
               </div>
               </div>
-            </Link>
+            </LinkTo>
             </div>
           ))
         }
       </div>
       <div className='w-full text-right w-full'>
         
-        <Link className="text-right w-full group relative border-2 border-slate-400 p-2 rounded-md" href={`collections/${name}`}>
+        <LinkTo className="text-right w-full group relative border-2 border-slate-400 p-2 rounded-md" href={`collections/${name}`}>
           Explore More
-        </Link>
+        </LinkTo>
       </div>
       <hr className='m-5'/>
       </div>

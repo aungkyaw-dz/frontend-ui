@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import Head from "next/head";
 import axios from "axios";
-import Link from 'next/link'
 import { useFormik } from "formik";
+import LinkTo from "../../components/linkto";
 
 const Featured = () => {
   const [collections, setCollections] = useState([]);
@@ -55,7 +55,7 @@ const Featured = () => {
         {
           collections && collections?.map((collection)=>(
             <div key={collection?.collectionId}>
-            <Link key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`collections/${collection.name}`}>
+            <LinkTo key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`collections/${collection.name}`}>
               <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer overflow-hidden">
               <div className="flex">
                 <div className="w-32 p-5">
@@ -102,7 +102,7 @@ const Featured = () => {
                 
               </div>
               </div>
-            </Link>
+            </LinkTo>
             </div>
           ))
         }

@@ -50,7 +50,7 @@ function MyApp({ Component, pageProps }) {
       alchemyProvider({ alchemyId: ALCHEMY_KEY }),
     ]
   );
-  
+  console.log(ALCHEMY_KEY)
   const { connectors } = getDefaultWallets({
     appName: 'My RainbowKit App',
     chains

@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useAccount, useDisconnect } from 'wagmi';
 import axios from 'axios';
-import Link from 'next/link';
 import DefaultImage from '../../../asset/images/default.png' 
 import Image from 'next/image';
+import LinkTo from '../../../components/linkto';
+
 const Collections = () => {
   const router = useRouter()
   useEffect(()=>{
@@ -52,7 +53,7 @@ const Collections = () => {
               <td>{collection.name}</td>
               <td>{collection.description}</td>
               <td>{collection.Creator?.username}</td>
-              <td><Link  href={`collections/${collection.collectionId}`}><button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Update</button></Link></td>
+              <td><LinkTo  href={`collections/${collection.collectionId}`}><button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'>Update</button></LinkTo></td>
             </tr>
           ))}
           

@@ -1,7 +1,8 @@
 import Head from 'next/head'
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { Button } from 'flowbite-react'
+import LinkTo from '../linkto'
+
 export default function Gallery({nfts, name}) {
   const [image, setImage] = useState()
   return (
@@ -11,7 +12,7 @@ export default function Gallery({nfts, name}) {
         {
           nfts && nfts?.map((nft)=>(
             <div key={nft?.collectionId}>
-            <Link key={nft?.nftId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`nfts/${nft.collectionId}`}>
+            <LinkTo key={nft?.nftId} className="group relative  rounded-md" href={`nfts/${nft.collectionId}`}>
               <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer overflow-hidden">
               <div className="w-full h-60 overflow-hidden">
                 {nft.logo ? 
@@ -51,16 +52,16 @@ export default function Gallery({nfts, name}) {
               </div>
               
               </div>
-            </Link>
+            </LinkTo>
             </div>
           ))
         }
       </div>
       {/* <div className='w-full text-right w-full'>
         
-        <Link className="text-right w-full group relative border-2 border-slate-400 p-2 rounded-md" href={`nfts/${name}`}>
+        <LinkTo className="text-right w-full group relative border-2 border-slate-400 p-2 rounded-md" href={`nfts/${name}`}>
           Explore More
-        </Link>
+        </LinkTo>
       </div> */}
       <hr className='m-5'/>
       </div>

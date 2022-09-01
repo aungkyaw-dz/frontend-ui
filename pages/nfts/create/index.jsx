@@ -1,5 +1,5 @@
 import Head from "next/head";
-import Link from "next/link";
+import LinkTo from "../../../components/linkto";
 
 const Index = () => {
   return(
@@ -18,20 +18,20 @@ const Index = () => {
           <div className="container grid md:grid-cols-2 gap-1 justify-center">
             <div className="shadow-md w-3/4 m-auto h-96 flex justify-center items-end p-5">
             <div className="">
-              <Link href="create/single">
+              <LinkTo href="create/single">
                 <button  className="border-2 rounded-full p-3">
                   Create a single NFT
                 </button>
-              </Link> 
+              </LinkTo> 
             </div>
             </div>
             <div className="shadow-md w-3/4 m-auto h-96 flex justify-center items-end p-5 hidden" >
               <div className="">
-                <Link  href="create/bulk">
+                <LinkTo  href="create/bulk">
                   <button  className="border-2 rounded-full p-3">
                     Create multiple NFTs
                   </button>
-                </Link>
+                </LinkTo>
               </div>
             </div>
           </div>

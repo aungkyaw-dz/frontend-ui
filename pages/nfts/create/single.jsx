@@ -5,37 +5,38 @@ import { useEffect, useState, useRef } from 'react';
 import { CreateMetaData } from '../../../utils/pinata';
 import { useAccount, useSendTransaction, useWaitForTransaction, useConnect } from 'wagmi';
 import axios from 'axios';
-import { Dropdown } from 'flowbite-react';
-import Link from 'next/link';
+import { Modal } from 'flowbite-react';
 import DefaultImage from '../../../asset/images/default.png'
 import CreatableSelect from 'react-select/creatable';
-import { useRouter } from 'next/router';
 
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
-const contractABI = require('../../../UrbanTechNFT.json')
+// const contractABI = require('../../../UrbanTechNFT.json')
+import { contractABI } from '../../../utils/abi';
 
 const SingleCreate = () => {
-  const [metaData, setMetaData]= useState()
-  const [uris, setUris]= useState()
-  const [tires, setTires]= useState()
   const [img, setImg] = useState()
   const [imgUrl, setImgUrl] = useState(DefaultImage.src)
   const [mp4, setMp4] = useState()
   const [mp3, setMp3] = useState()
   const [pdf, setPdf] = useState()
   const [word, setWord] = useState()
-  const { data: account } = useAccount()
-  const { connect, connectors, activeConnector } = useConnect()
+  const [collections, setCollections] = useState(null)
+  const [collectionId, setCollectionId] = useState(null)
+  const [metaData, setMetaData]= useState()
+  const [ready, setReady] = useState(false)
+  const [categories, setCategories] = useState([])
   const [status, setStatus] = useState(null)
+  const [message, setMsg] = useState('')
+  const [show, setShow]= useState(false)
+  
+  const { data: account } = useAccount()
+  const { connect, connectors, activeConnector, isConnecting } = useConnect()
+
   const contractAddress = process.env.CONTRACT_ADDRESS;
   const API_URL = process.env.API_URL;
   const web3 = createAlchemyWeb3(API_URL);
-  const [collections, setCollections] = useState(null)
-  const [collectionId, setCollectionId] = useState(null)
-  const [ready, setReady] = useState(false)
-  const [categories, setCategories] = useState([])
-  const router = useRouter()
+
 
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
@@ -46,9 +47,12 @@ const SingleCreate = () => {
       }
     } 
     getCollections()
+    if(account && !activeConnector){
+      connect(connectors[5])
+    }
   },[account])
 
-  
+  const re = /^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?$/gm
   const formik = useFormik({
     initialValues: {
       name: '',
@@ -64,12 +68,11 @@ const SingleCreate = () => {
     },
     onSubmit: async (values) => {
       try{
-
-        setStatus("Creating MetaData")
+        setStatus("creating")
+        setMsg("Creating MetaData")
         if(account){
           values.creator = account.address
           values.owner = account.address
-          values.fileType = img?.type.split('/')[0]
 
           const formData = new FormData()
           for ( var key in values ) {
@@ -83,27 +86,31 @@ const SingleCreate = () => {
           for (let i = 0; i < categories.length; i++){
             formData.append("categories", categories[i].value)
           }
+          setShow(true)
+          setStatus('create')
+          setMsg("Creating the metadata")
           let nftRes = await axios.post(`${API_URL}/nfts/create`, formData)
-          setMetaData(nftRes.data.mintData)
-          setCollectionId(nftRes.data.collection.collectionId)
-          // setNftId(nftRes.data.data.nftId)
-          // const resData = await CreateMetaData(img, values)
-          // if(resData.success){
-          //   setMetaData(resData.url)
-          //   const updateData = {
-          //     tokenUri: resData.url,
-          //   }
-          //   nftRes = await axios.post(`${API_URL}/nfts/update/${nftRes.data.data.nftId}`, updateData)
-          // }
+          if(nftRes){
+            setMetaData(nftRes.data.mintData)
+            setCollectionId(nftRes.data.collection.collectionId)
+            setStatus('mint')
+            setMsg("MetaData created. Plase confim in your wallet")
+          }
         }else{
           alert("Please Connect Wallet")
         }
       }catch(err){
-        setStatus("Error")
+        setStatus("error")
+        setMsg("Error occuring, please reaload the page and try agin")
       }
     },
     validationSchema: yup.object({
       name: yup.string().trim().required('Name is required'),
+      description: yup.string().trim().required('Description is required'),
+      collectionName: yup.string().trim().required('Collection Name is required'),
+      collectionDesc: yup.string().trim().required('Collection description is required'),
+      facebook: yup.string().trim().matches(re, 'URL is not valid'),
+      discord: yup.string().trim().matches(re, 'URL is not valid'),
     }),
   });
 
@@ -132,8 +139,9 @@ const SingleCreate = () => {
           useSendTransaction({
           request: transactionParameters,
           onError(error) {
+            setStatus('error')
+            setMsg("Error occuring, please reaload the page and try agin")
             console.log(error)
-            setStatus('Error')
             // window.location.reload(false)
             if(error.code == "INSUFFICIENT_FUNDS"){
               alert("Sorry, your wallet has insufficient funds. Please fund your wallet via Binance")
@@ -144,9 +152,9 @@ const SingleCreate = () => {
             },
           })
 
-    const { data: wait, isError, isLoading } = useWaitForTransaction({
-      hash: txData?.hash,
-    })
+  const { data: wait } = useWaitForTransaction({
+    hash: txData?.hash,
+  })
   useEffect(()=>{
     if(metaData && !txData){
       try{
@@ -155,6 +163,7 @@ const SingleCreate = () => {
         }
         setTimeout(()=>{
           setStatus("Minting")
+          setMsg("Please wait until transcation is complete")
           sendTransaction()
         }, 5000);
       }catch(err){
@@ -175,6 +184,7 @@ const SingleCreate = () => {
           const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, updateData)
           if(!resData.error){
             setStatus('complete')
+            setMessage('Transcation is Complete')
             // window.location.href = `/nfts/${nftId}`
           }
         }
@@ -272,6 +282,9 @@ const SingleCreate = () => {
   const handleChange = (newValue, actionMeta) => {
     setCategories(newValue);
   };
+
+  const onClose = () => setShow(false)
+  
   const options = [
     { value: '', label: 'create categories', isDisabled: true },
     { value: 'Dog', label: 'Dog'},
@@ -290,7 +303,7 @@ const SingleCreate = () => {
       <h1 className='text-4xl font-bold p-5'>Create single item</h1>
       <p className='text-lg p-5 lg:w-2/5'>
         Image, Video, Audio, or 3D Model. File types supported: JPG, PNG, GIF,
-        SVG. Max size: 25 MB
+        SVG, MP4, Mp4, PDF, TXT, DOC. Max size: 25 MB
       </p>
       <div className='lg:w-1/2 grid grid-cols-3 gap-4 text-center justify-center items-center'>
         <div className="bg-white shadow-md rounded col-span-2 overflow-hidden pb-5 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
@@ -298,10 +311,10 @@ const SingleCreate = () => {
           onDragOver={(e) => handleDragOver(e)}
           onDragLeave={(e) => handleDragLeave(e)}
           onDrop={(e) => handleDrop(e)}
-          onClick={()=>ImageInput.current.click()}
+          // onClick={()=>ImageInput.current.click()}
         >
           <div className='p-1 m-2'>
-            {imgUrl && <img src={imgUrl} alt='preview' className='h-48 w-auto m-auto mb-5'/>}
+            {imgUrl && <img src={imgUrl} alt='preview' className='h-48 w-auto m-auto mb-5' onClick={()=>ImageInput.current.click()}/>}
           </div>
 
           <input
@@ -320,7 +333,7 @@ const SingleCreate = () => {
             onDragOver={(e) => handleDragOver(e)}
             onDragLeave={(e) => handleDragLeave(e)}
             onDrop={(e) => handleDrop(e)}
-            onClick={()=>pdfInput.current.click()}
+            // onClick={()=>pdfInput.current.click()}
           >
             <input
                 id="pdf"
@@ -337,19 +350,19 @@ const SingleCreate = () => {
             onDragOver={(e) => handleDragOver(e)}
             onDragLeave={(e) => handleDragLeave(e)}
             onDrop={(e) => handleDrop(e)}
-            onClick={()=>wordInput.current.click()}
+            // onClick={()=>wordInput.current.click()}
           >
             <input
                 id="word"
                 type="file"
-                accept='.txt'
+                accept='.txt, .doc, .docx'
                 onChange={(e)=> uploadWord(e)}
                 className="hidden"
                 ref={wordInput}
               />
             <label htmlFor="word">{word?.name||"Upload Text"}</label>
           </div>
-          <div className="bg-white shadow-md rounded p-5 m-2 hidden cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
+          {/* <div className="bg-white shadow-md rounded p-5 m-2 hidden cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
             onDragEnter={(e) => handleDragEnter(e)}
             onDragOver={(e) => handleDragOver(e)}
             onDragLeave={(e) => handleDragLeave(e)}
@@ -365,13 +378,13 @@ const SingleCreate = () => {
                 ref={wordInput}
               />
             <label htmlFor="mp3">upload Mp3</label>
-          </div>
+          </div> */}
           <div className="bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
             onDragEnter={(e) => handleDragEnter(e)}
             onDragOver={(e) => handleDragOver(e)}
             onDragLeave={(e) => handleDragLeave(e)}
             onDrop={(e) => handleDrop(e)}
-            onClick={()=>videoInput.current.click()}
+            // onClick={()=>videoInput.current.click()}
             >
             <input
                 id="mp4"
@@ -399,6 +412,7 @@ const SingleCreate = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder="NFT Name"/>
+            <p className='block text-red-700 text-sm mb-2'>{formik.errors.name}</p>
         </div>
 
         <div className="mb-4 ">
@@ -428,30 +442,33 @@ const SingleCreate = () => {
             onBlur={formik.handleBlur}
             rows="4"  
             placeholder="NFT Description"></textarea>
+            <p className='block text-red-700 text-sm mb-2'>{formik.errors.description}</p>
         </div>
         <div className="mb-4 ">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
             FaceBook
           </label>
-          <textarea className="block p-2.5 w-full text-sm text-gray-900 bg-gray-500-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-500-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          <input className="block p-2.5 w-full text-sm text-gray-900 bg-gray-500-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-500-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             id="facebook" 
             name='facebook'
             value={formik.values.facebook}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder="Facebook"></textarea>
+            placeholder="Facebook"/>
+            <p className='block text-red-700 text-sm mb-2'>{formik.errors.facebook}</p>
         </div>
         <div className="mb-4 ">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="description">
             Dsicord
           </label>
-          <textarea className="block p-2.5 w-full text-sm text-gray-900 bg-gray-500-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-500-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          <input className="block p-2.5 w-full text-sm text-gray-900 bg-gray-500-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-500-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             id="discord" 
             name='discord'
             value={formik.values.discord}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder="Discord"></textarea>
+            placeholder="Discord"></input>
+            <p className='block text-red-700 text-sm mb-2'>{formik.errors.discord}</p>
         </div>
         <div className="mb-4 hidden">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="collectionId">
@@ -525,6 +542,7 @@ const SingleCreate = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder="Collection name"/>
+            <p className='block text-red-700 text-sm mb-2'>{formik.errors.collectionName}</p>
         </div>
         <div className="mb-4 ">
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="collectionDesc">
@@ -537,6 +555,7 @@ const SingleCreate = () => {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             placeholder="Collection Description"/>
+            <p className='block text-red-700 text-sm mb-2'>{formik.errors.collectionDesc}</p>
         </div>
         <div className="flex items-center justify-start">
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
@@ -544,7 +563,8 @@ const SingleCreate = () => {
           </button>
           
         </div>
-        <div className='text-left'>
+
+        {/* <div className='text-left'>
           {status && (
             <div>
               {status}
@@ -556,11 +576,52 @@ const SingleCreate = () => {
             )}
           {ready && (
             <div className='underline p-2 text-blue-600 hover:text-blue-800 visited:text-purple-600'>
-              <Link  href={`/nfts/${nftId}`}>Please check your nft on here</Link>
+              <LinkTo  href={`/nfts/${nftId}`}>Please check your nft on here</LinkTo>
             </div>
           )}
-        </div>
+        </div> */}
       </form>
+      <div>
+        
+      </div>
+      {message && (
+        <Modal
+            show={show}
+            position="center"
+            onClose={onClose}
+            size="sm"
+          >
+            <Modal.Header>
+              Minting Process
+            </Modal.Header>
+            <Modal.Body>
+              {
+                message && (
+                  <div>
+                    { status === 'error' ?
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    :
+                    (status === "complete" ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    ): (
+                      
+                      <svg role="status" className="w-8 h-8 m-auto text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                      </svg>
+                    ))
+                    }
+                    <p className='text-sm font-medium text-gray-700 p-5 pt-2 w-100 text-center'>{message}</p>
+                  </div>
+                )
+              }
+            </Modal.Body>
+        </Modal>
+      )}
     </div>
   )
 }

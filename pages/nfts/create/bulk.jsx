@@ -6,14 +6,13 @@ import { createBulkMetaData } from '../../../utils/pinata';
 import { useAccount } from 'wagmi';
 import axios from 'axios';
 import { Dropdown } from 'flowbite-react';
-import Link from 'next/link';
 import DefaultImage from '../../../asset/images/default.png'
 import CreatableSelect from 'react-select/creatable';
 
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
-const contractABI = require('../../../UrbanTechNFT.json')
-
+// const contractABI = require('../../../UrbanTechNFT.json')
+import { contractABI } from '../../../utils/abi';
 const BulkCreate = () => {
   const [images, setImages] = useState()
   const { data: account } = useAccount()

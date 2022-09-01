@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import Link from 'next/link';
 import facebook from '../asset/images/facebook.svg'
 import twitter from '../asset/images/twitter.svg'
 import instagram from '../asset/images/instagram.svg'
