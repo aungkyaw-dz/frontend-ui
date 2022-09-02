@@ -5,6 +5,8 @@ import { Button, Dropdown, Modal } from 'flowbite-react';
 import { useAccount, useSendTransaction, useWaitForTransaction, useConnect, useDisconnect } from 'wagmi';
 import { MarketPlaceABI, LeafABI } from '../../utils/abi';
 import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
+import dynamic from 'next/dynamic';
+
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
 const contractABI = MarketPlaceABI
@@ -658,4 +660,8 @@ const NftDetail = () => {
   )
 }
 
-export default NftDetail
+export default dynamic(() => Promise.resolve(NftDetail), {
+  ssr: false
+})
+
+// export default NftDetail
