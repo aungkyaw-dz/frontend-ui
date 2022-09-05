@@ -4,8 +4,8 @@ import Head from "next/head";
 import { Button, Dropdown, Modal } from 'flowbite-react';
 import { useAccount, useSendTransaction, useWaitForTransaction, useConnect, useDisconnect } from 'wagmi';
 import { MarketPlaceABI, LeafABI } from '../../utils/abi';
-import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
-import dynamic from 'next/dynamic';
+// import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
+// import dynamic from 'next/dynamic';
 
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
