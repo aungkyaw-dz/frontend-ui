@@ -595,12 +595,8 @@ const NftDetail = () => {
                 (
                   <div className='p-5 m-auto rounded-md shadow-md'>
                     <h1 className='text-lg text-gray-700  p-5 font-bold'>Text File</h1>
-
-                    {/* <object data={word} width="100%" height="500">
-                      Not supported
-                    </object> */}
-                    <DocViewer pluginRenderers={DocViewerRenderers} documents={docs} style={{width: "100%", height: 500}} />
-                    {/* <iframe title={word.name} src={word} width="100%" height="500" allowfullscreen webkitallowfullscreen></iframe> */}
+                    <iframe title={word.name} src={`https://docs.google.com/gview?url=${word}&embedded=true`} width="100%" height="500" allowfullscreen webkitallowfullscreen>
+                    </iframe>
                   </div>
                 ):(
                   <div className="hidden bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
@@ -660,8 +656,4 @@ const NftDetail = () => {
   )
 }
 
-export default dynamic(() => Promise.resolve(NftDetail), {
-  ssr: false
-})
-
-// export default NftDetail
+export default NftDetail
