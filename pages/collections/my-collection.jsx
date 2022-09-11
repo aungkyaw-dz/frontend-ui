@@ -93,7 +93,7 @@ const CollectionDetail = () => {
           ))
         }
       </div>
-      {collections.length >= limit && (
+      {collections?.length >= limit && (
           <Button onClick={changeLimit}>show More</Button>
         )}
     </div>
