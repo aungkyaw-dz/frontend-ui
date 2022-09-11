@@ -34,12 +34,12 @@ const Navbar = () => {
             </LinkTo>
             <div className='hidden w-full lg:inline-flex lg:flex-grow lg:w-auto'>
                 <div className='lg:inline-flex lg:flex-row lg:ml-auto lg:w-auto w-full lg:items-center items-start  flex flex-col lg:h-auto'>
-                    <LinkTo href='/test'>
+                    <LinkTo href='/'>
                     <a className='lg:inline-flex lg:w-auto w-full px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white '>
                         Explore
                     </a>
                     </LinkTo>
-                    <LinkTo href='/index1'>
+                    <LinkTo href='/#'>
                     <a className='lg:inline-flex lg:w-auto w-full px-3 py-2 mx-2 rounded-lg text-white font-bold items-center justify-center text-white '>
                         Stats
                     </a>

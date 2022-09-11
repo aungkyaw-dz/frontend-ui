@@ -215,6 +215,7 @@ const NftDetail = () => {
   }
 
   const shortText = (value)=>{
+    console.log(value)
     return value?.slice(0, 4) + "...." + value?.slice(-4)
   }
 

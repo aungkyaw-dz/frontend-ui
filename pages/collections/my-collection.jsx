@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react'
 import Head from "next/head";
 import { useAccount } from 'wagmi';
 import LinkTo from '../../components/linkto';
+import { Button } from 'flowbite-react';
 
 const CollectionDetail = () => {
   const {data:account}= useAccount()
   const [collections, setCollections] = useState(null);
   const API_URL = process.env.API_URL
+  const [limit, setLimit] = useState(10)
   useEffect(()=>{
     const getCollection = async () => {
       try{
@@ -23,6 +25,10 @@ const CollectionDetail = () => {
    }
     getCollection()
   },[account])
+
+  const changeLimit = () =>{
+    setLimit(limit+10)
+  }
   return(
     <div className="container mx-auto">
       <Head>
@@ -87,6 +93,7 @@ const CollectionDetail = () => {
           ))
         }
       </div>
+      <Button onClick={changeLimit}>show More</Button>
     </div>
   )
 }
