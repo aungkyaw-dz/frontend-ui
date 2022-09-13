@@ -3,6 +3,8 @@ import axios from "axios";
 import { useAccount, useConnect } from "wagmi";
 import { useEffect, useState } from "react";
 import { useFormik } from 'formik';
+const API_URL = process.env.API_URL;
+
 const Profile = () => {
     
   const [img, setImg] = useState()
@@ -28,7 +30,7 @@ const Profile = () => {
         formData.append("email", values.email);
       }
       try{
-        const userRes = await axios.post(`http://localhost:3001/users/edit/${account.address}`, 
+        const userRes = await axios.post(`${API_URL}/users/edit/${account.address}`, 
                                       formData, 
                                       {headers: {
                                         'Content-Type': `multipart/form-data;`,
