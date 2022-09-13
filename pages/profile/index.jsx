@@ -41,6 +41,7 @@ const Profile = () => {
           console.log(userRes)
           // router.push(`/collections/${name}`)
         }
+        alert('Update success')
       } catch (err){
         console.log(err)
         alert("Cannot Update")
