@@ -4,6 +4,7 @@ import Head from "next/head";
 import { Button, Dropdown, Modal } from 'flowbite-react';
 import { useAccount, useSendTransaction, useWaitForTransaction, useConnect, useDisconnect } from 'wagmi';
 import { MarketPlaceABI, LeafABI } from '../../utils/abi';
+import { BigNumber } from 'ethers';
 // import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 // import dynamic from 'next/dynamic';
 
@@ -68,7 +69,6 @@ const NftDetail = () => {
 
   const { data} = useAccount()
   const { connect, connectors, activeConnector, isConnecting} = useConnect()
-  console.log(isConnecting)
   const [collection, setCollection] = useState(null);
   const [toAddress, setToAddress]= useState("")
   const [contract, setContact]= useState(false)
@@ -77,6 +77,8 @@ const NftDetail = () => {
   const [pdf, setPdf] = useState(null)
   const [word, setword] = useState(null)
   const [video, setVideo] = useState(null)
+  const [audio, setAudio] = useState(null)
+  const [zip, setZip] = useState(null)
   const [transactionData, setTranscationData] = useState(null)
   const [price, setPrice] = useState(0.001)
   const [show, setShow]= useState(false)
@@ -97,10 +99,12 @@ const NftDetail = () => {
           setCollection(res.data.data)
           const nfts = res.data.data.nfts
           await nfts.map((nft)=>{
+            console.log(nft.file, nft.tokenId)
+            console.log(nft)
             if(nft.fileType == 'image'){
               setImage(nft.file)
             }
-            if(nft.fileType == 'application'){
+            if(nft.fileType == 'pdf'){
               setPdf(nft.file)
             }
             if(nft.fileType == 'text'){
@@ -108,6 +112,12 @@ const NftDetail = () => {
             }
             if(nft.fileType == 'video'){
               setVideo(nft.file)
+            }
+            if(nft.fileType == 'audio'){
+              setAudio(nft.file)
+            }
+            if(nft.fileType == 'zip'){
+              setZip(nft.file)
             }
           })
         }
@@ -135,7 +145,7 @@ const NftDetail = () => {
   const transactionParameters = {
       to: contractAddress,
       from: data?.address,
-      value: method === "buy" ? `0x${(collection.price*1000000000000000000).toString(16)}`:`0x${(0).toString(16)}`,
+      value: method === "buy" ? BigNumber.from((collection.price*1000000000000000000).toString()):`0x${(0).toString(16)}`,
       'data': transactionData
   };
 
@@ -143,6 +153,7 @@ const NftDetail = () => {
           useSendTransaction({
           request: transactionParameters,
           onError(error) {
+            console.log(error)
               setStatus('error')
               setMessage("Error, Please try again after reload the page")
               if(error.code == "INSUFFICIENT_FUNDS"){
@@ -215,13 +226,12 @@ const NftDetail = () => {
   }
 
   const shortText = (value)=>{
-    console.log(value)
     return value?.slice(0, 4) + "...." + value?.slice(-4)
   }
 
   useEffect(()=>{
     if(method==="add"){
-      setTranscationData(window.contract.methods.createMarketItem(collection?.address , 1 , (price*1000000000000000000)).encodeABI())
+      setTranscationData(window.contract.methods.createMarketItem(collection?.address , 1 , BigNumber.from((price*1000000000000000000).toString())).encodeABI())
     }
     if(method==='buy'){
       setTranscationData(window.contract.methods.createMarketSale(collection?.address , collection?.marketId ).encodeABI())
@@ -307,6 +317,7 @@ const NftDetail = () => {
     { uri: word },
   ]
 
+
   return(
     <div className="container mx-auto">
        <Head>
@@ -317,17 +328,25 @@ const NftDetail = () => {
       {collection && (
       <div>
       <div className='md:flex justify-evenly items-start'>
-        <div className='md:w-2/3  h-96 flex items-center'>
-          <div className="  border-2  p-2 m-auto rounded-md shadow-md">
-            <div className='flex justify-center'>
-            <img
-              className='w-96'
-              src={image}
-              alt={collection.nfts[0]?.name}
-            />  
-          </div>
-          </div>
+        <div className='md:w-1/2 '>
+          <div className=" h-96 border-2 w-auto flex justify-center items-center p-2 m-auto rounded-md shadow-md">
+            <div>
+              <img
+                className='w-96'
+                src={image}
+                alt={collection.nfts[0]?.name}
+              />  
+            </div>
           
+          </div>
+          {audio && (
+            <div className='p-5 w-full'>
+              <h1 className='text-lg text-gray-700 p-5 font-bold'>Audio File</h1>
+              <audio controls  width="100">
+                <source src={audio} />
+              </audio>
+            </div>
+          )}
           
         </div>
         <div className='md:w-1/3 p-2 relative '>
@@ -442,11 +461,11 @@ const NftDetail = () => {
                               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
                             </svg>:
                             (status === "complete" ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ): (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ))
@@ -521,11 +540,11 @@ const NftDetail = () => {
                               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
                             </svg>:
                             (status === "complete" ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ): (
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ))
@@ -566,91 +585,46 @@ const NftDetail = () => {
         </div>
         <div className='flex justify-around'>
             <div className='pdf p-5 w-1/2'>
-              {pdf?(
+              {pdf&&(
                   <div className='p-5 m-auto rounded-md shadow-md'>
                     <h1 className='text-lg text-gray-700  p-5 font-bold'>PFD File</h1>
 
                     <iframe title={pdf.name} src={pdf} width="100%" height="500" allow="autoplay"></iframe>
                   </div>
-                ):(
-                  <div className="hidden bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
-                    onClick={()=>wordInput.current.click()}
-                  >
-                    <input
-                        id="word"
-                        type="file"
-                        accept='.txt'
-                        onChange={(e)=> uploadWord(e)}
-                        className="hidden"
-                        ref={wordInput}
-                      />
-                    <label htmlFor="word">{pdf?.name||"Upload PDF"}</label>
-                  </div>
                 )
               }
-              
             </div>
             <div className='word p-5 w-1/2'>
               {
-                word?
+                word&&
                 (
                   <div className='p-5 m-auto rounded-md shadow-md'>
                     <h1 className='text-lg text-gray-700  p-5 font-bold'>Text File</h1>
-                    <iframe title={word.name} src={`https://docs.google.com/gview?url=${word}&embedded=true`} width="100%" height="500" allowfullscreen webkitallowfullscreen>
+                    <iframe title={word.name} src={`https://docs.google.com/gview?url=${word}&embedded=true`} width="100%" height="500" >
                     </iframe>
-                  </div>
-                ):(
-                  <div className="hidden bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
-                    onClick={()=>wordInput.current.click()}
-                  >
-                    <input
-                        id="word"
-                        type="file"
-                        accept='.txt'
-                        onChange={(e)=> uploadWord(e)}
-                        className="hidden"
-                        ref={wordInput}
-                      />
-                    <label htmlFor="word">{pdf?.name||"Upload Text"}</label>
                   </div>
                 )
               }
             </div>
           </div>
           {
-            video ? (video?.split('.').pop() === "mp4" ?(
+            video &&(
               <div className='p-5 w-full'>
                 <h1 className='text-lg text-gray-700 p-5 font-bold'>Video File</h1>
-                <video controls  width="100%" height="500">
+                <video controls  width="500" height="500">
                   <source src={video} />
                 </video>
               </div>
-            ):(
-              <div className='p-5 w-full'>
-                <h1 className='text-lg text-gray-700 p-5 font-bold'>Audio File</h1>
-                <audio controls  width="100">
-                  <source src={video} />
-                </audio>
-              </div>
             )
-            ):
-            (
-              <div className="hidden bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
-                onClick={()=>videoInput.current.click()}
-                >
-                <input
-                    id="mp4"
-                    type="file"
-                    accept='.mp4, .mp3'
-                    onChange={(e)=> uploadMp4(e)}
-                    className="hidden"
-                    ref={videoInput}
-                  />
-                <label htmlFor="mp4">{video?.name||"Upload Mp3/Mp4"}</label>
+          }
+          {
+            zip &&(
+              <div className='p-5 w-full'>
+                <h1 className='text-lg text-gray-700 p-5 font-bold'>ZIP File</h1>
+                <Button href={zip}>Download Zip</Button>
               </div>
             )
           }
-          
       </div>
       )}
     </div>

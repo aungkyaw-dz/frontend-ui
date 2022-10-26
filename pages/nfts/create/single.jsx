@@ -21,6 +21,7 @@ const SingleCreate = () => {
   const [mp3, setMp3] = useState()
   const [pdf, setPdf] = useState()
   const [word, setWord] = useState()
+  const [zip, setZip] = useState()
   const [collections, setCollections] = useState(null)
   const [collectionId, setCollectionId] = useState(null)
   const [metaData, setMetaData]= useState()
@@ -83,6 +84,7 @@ const SingleCreate = () => {
           formData.append("files", mp4)
           formData.append("files", pdf)
           formData.append("files", word)
+          formData.append("files", zip)
           for (let i = 0; i < categories.length; i++){
             formData.append("categories", categories[i].value)
           }
@@ -122,16 +124,28 @@ const SingleCreate = () => {
       formik.values.collectionName, 
       [
         metaData?.image?.tokenUri||"",
-        metaData?.application?.tokenUri||"", 
+        metaData?.pdf?.tokenUri||"", 
+        metaData?.audio?.tokenUri||"", 
         metaData?.text?.tokenUri||"", 
-        metaData?.video?.tokenUri|| "" ], 
+        metaData?.video?.tokenUri|| "", 
+        metaData?.zip?.tokenUri|| "" 
+      ], 
       [
         metaData?.image ? true: false,
-        metaData?.application ? true: false,
+        metaData?.pdf ? true: false,
+        metaData?.audio ? true: false,
         metaData?.text ? true: false,
         metaData?.video ? true: false,
+        metaData?.zip ? true: false,
       ], 
-      [formik.values.amount, formik.values.amount, formik.values.amount, formik.values.amount]
+      [
+        formik.values.amount,
+        formik.values.amount, 
+        formik.values.amount, 
+        formik.values.amount,
+        formik.values.amount,
+        formik.values.amount
+      ]
       ).encodeABI(): ""
   };
 
@@ -198,6 +212,8 @@ const SingleCreate = () => {
   const pdfInput = useRef(null)
   const wordInput = useRef(null)
   const videoInput = useRef(null)
+  const audioInput = useRef(null)
+  const zipInput = useRef(null)
 
   const uploadImg =  (e) => {
     if(e.target.files && e.target.files[0]){
@@ -250,6 +266,18 @@ const SingleCreate = () => {
       var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
       if(filesize<25){
         setWord(e.target.files[0])
+      }else{
+        alert('excess max size')
+      }
+      
+    }
+  }
+
+  const uploadZip =  (e) => {
+    if(e.target.files && e.target.files[0]){
+      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
+      if(filesize<25){
+        setZip(e.target.files[0])
       }else{
         alert('excess max size')
       }
@@ -362,23 +390,23 @@ const SingleCreate = () => {
               />
             <label htmlFor="word">{word?.name||"Upload Text"}</label>
           </div>
-          {/* <div className="bg-white shadow-md rounded p-5 m-2 hidden cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
+          <div className="bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
             onDragEnter={(e) => handleDragEnter(e)}
             onDragOver={(e) => handleDragOver(e)}
             onDragLeave={(e) => handleDragLeave(e)}
             onDrop={(e) => handleDrop(e)}
-            onClick={()=>wordInput.current.click()}
+            // onClick={()=>audioInput.current.click()}
           >
             <input
                 id="mp3"
                 type="file"
-                accept='.jpg, .jpeg, .png, .gif, .mp4, .svg, .pdf, .txt, .xlsx, .xls, .csv'
+                accept='.mp3'
                 onChange={(e)=> uploadMp3(e)}
                 className="hidden"
-                ref={wordInput}
+                ref={audioInput}
               />
-            <label htmlFor="mp3">upload Mp3</label>
-          </div> */}
+            <label htmlFor="mp3">{mp3?.name||"Upload Mp3"}</label>
+          </div>
           <div className="bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
             onDragEnter={(e) => handleDragEnter(e)}
             onDragOver={(e) => handleDragOver(e)}
@@ -389,12 +417,29 @@ const SingleCreate = () => {
             <input
                 id="mp4"
                 type="file"
-                accept='.mp4, .mp3'
+                accept='.mp4'
                 onChange={(e)=> uploadMp4(e)}
                 className="hidden"
                 ref={videoInput}
               />
-            <label htmlFor="mp4">{mp4?.name||"Upload Mp3/Mp4"}</label>
+            <label htmlFor="mp4">{mp4?.name||"Upload Mp4"}</label>
+          </div>
+          <div className="bg-white shadow-md rounded p-5 m-2 cursor-pointer hover:shadow-lg hover:shadow-cyan-500/50"
+            onDragEnter={(e) => handleDragEnter(e)}
+            onDragOver={(e) => handleDragOver(e)}
+            onDragLeave={(e) => handleDragLeave(e)}
+            onDrop={(e) => handleDrop(e)}
+            // onClick={()=>zipInput.current.click()}
+            >
+            <input
+                id="zip"
+                type="file"
+                accept='.zip'
+                onChange={(e)=> uploadZip(e)}
+                className="hidden"
+                ref={zipInput}
+              />
+            <label htmlFor="zip">{zip?.name||"Upload ZIP"}</label>
           </div>
         
         </div>
