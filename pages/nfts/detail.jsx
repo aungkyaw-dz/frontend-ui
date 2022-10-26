@@ -179,6 +179,7 @@ const NftDetail = () => {
                 const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, 
                 { approved: false, 
                   listed: false,
+                  price: 0,
                   owner: data?.address
                 })
               }
