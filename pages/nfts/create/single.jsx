@@ -38,6 +38,7 @@ const SingleCreate = () => {
   const API_URL = process.env.API_URL;
   const web3 = createAlchemyWeb3(API_URL);
 
+  console.log(contractAddress)
 
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
