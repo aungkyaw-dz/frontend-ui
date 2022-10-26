@@ -421,6 +421,13 @@ const NftDetail = () => {
             <h6 className='text-lg text-gray-700 font-bold p-2  w-48'>Token-ID</h6>
             <h6 className='text-lg font-medium text-gray-700 border-2 p-2  w-60 text-center'>{collection.nfts[0]?.tokenId}</h6>
           </div>
+          {collection.price > 0 && (
+            <div className='flex justify-around p-2'>
+              <h6 className='text-lg text-gray-700 font-bold p-2  w-48'>Price</h6>
+              <h6 className='text-lg font-medium text-gray-700 border-2 p-2  w-60 text-center'>{collection.price} MATIC</h6>
+            </div>
+          )}
+            
           {
             (collection.Owner?.walletAddress === data?.address && collection.approved && !collection.listed) &&
             (
