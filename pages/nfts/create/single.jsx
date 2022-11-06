@@ -30,7 +30,7 @@ const SingleCreate = () => {
   const [status, setStatus] = useState(null)
   const [message, setMsg] = useState('')
   const [show, setShow]= useState(false)
-  
+  const [filesChecked, setFilesChecked] = useState(false)
   const { data: account } = useAccount()
   const { connect, connectors, activeConnector, isConnecting } = useConnect()
 
@@ -38,7 +38,6 @@ const SingleCreate = () => {
   const API_URL = process.env.API_URL;
   const web3 = createAlchemyWeb3(API_URL);
 
-  console.log(contractAddress)
 
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
@@ -58,7 +57,7 @@ const SingleCreate = () => {
   const formik = useFormik({
     initialValues: {
       name: '',
-      amount: 1,
+      quantity: 1,
       description: '',
       price: 0,
       type: '',
@@ -70,37 +69,41 @@ const SingleCreate = () => {
     },
     onSubmit: async (values) => {
       try{
-        setStatus("creating")
-        setMsg("Creating MetaData")
-        if(account){
-          values.creator = account.address
-          values.owner = account.address
+        if(filesChecked){
+          setStatus("creating")
+          setMsg("Creating MetaData")
+          if(account){
+            values.creator = account.address
+            values.owner = account.address
 
-          const formData = new FormData()
-          for ( var key in values ) {
-            formData.append(key, values[key]);
-          }
-          formData.append("files", img)
-          formData.append("files", mp3)
-          formData.append("files", mp4)
-          formData.append("files", pdf)
-          formData.append("files", word)
-          formData.append("files", zip)
-          for (let i = 0; i < categories.length; i++){
-            formData.append("categories", categories[i].value)
-          }
-          setShow(true)
-          setStatus('create')
-          setMsg("Creating the metadata")
-          let nftRes = await axios.post(`${API_URL}/nfts/create`, formData)
-          if(nftRes){
-            setMetaData(nftRes.data.mintData)
-            setCollectionId(nftRes.data.collection.collectionId)
-            setStatus('mint')
-            setMsg("MetaData created. Plase confim in your wallet")
+            const formData = new FormData()
+            for ( var key in values ) {
+              formData.append(key, values[key]);
+            }
+            formData.append("files", img)
+            formData.append("files", mp3)
+            formData.append("files", mp4)
+            formData.append("files", pdf)
+            formData.append("files", word)
+            formData.append("files", zip)
+            for (let i = 0; i < categories.length; i++){
+              formData.append("categories", categories[i].value)
+            }
+            setShow(true)
+            setStatus('create')
+            setMsg("Creating the metadata")
+            let nftRes = await axios.post(`${API_URL}/nfts/create`, formData)
+            if(nftRes){
+              setMetaData(nftRes.data.mintData)
+              setCollectionId(nftRes.data.collection.collectionId)
+              setStatus('mint')
+              setMsg("MetaData created. Plase confim in your wallet")
+            }
+          }else{
+            alert("Please Connect Wallet")
           }
         }else{
-          alert("Please Connect Wallet")
+          alert("Please Input All Files")
         }
       }catch(err){
         setStatus("error")
@@ -116,6 +119,12 @@ const SingleCreate = () => {
       discord: yup.string().trim().matches(re, 'URL is not valid'),
     }),
   });
+
+  useEffect(()=>{
+    if(img && mp3 && mp4 && pdf && word && word ){
+      setFilesChecked(true)
+    }
+  },[img, mp3, mp4, pdf, word, zip])
 
 
   const transactionParameters = {
@@ -140,12 +149,12 @@ const SingleCreate = () => {
         metaData?.zip ? true: false,
       ], 
       [
-        formik.values.amount,
-        formik.values.amount, 
-        formik.values.amount, 
-        formik.values.amount,
-        formik.values.amount,
-        formik.values.amount
+        formik.values.quantity,
+        formik.values.quantity, 
+        formik.values.quantity, 
+        formik.values.quantity,
+        formik.values.quantity,
+        formik.values.quantity
       ]
       ).encodeABI(): ""
   };
@@ -200,7 +209,7 @@ const SingleCreate = () => {
           if(!resData.error){
             setStatus('complete')
             setMsg('Transcation is Complete')
-            // window.location.href = `/nfts/${nftId}`
+            window.location.href = `/nfts/${collectionId}`
           }
         }
         updateCollection()
@@ -218,71 +227,98 @@ const SingleCreate = () => {
 
   const uploadImg =  (e) => {
     if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setImg(e.target.files[0])
-        setImgUrl(URL.createObjectURL(e.target.files[0]))
+      console.log(e.target.files[0])
+      const fileExt = e.target.files[0].type?.split('/')[1]
+      if(['jpg', 'jpeg', 'png', 'gif', 'svg'].includes(fileExt)){
+        var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
+        if(filesize<25){
+          setImg(e.target.files[0])
+          setImgUrl(URL.createObjectURL(e.target.files[0]))
+        }else{
+          alert('Excess max size')
+        }
       }else{
-        alert('excess max size')
+        alert("Invalid file format")
       }
-      
     }
   }
   const uploadMp3 =  (e) => {
     if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setMp3(e.target.files[0])
+      const fileExt = e.target.files[0].type?.split('/')[0]
+      console.log(fileExt)
+      if(['audio'].includes(fileExt)){
+        var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
+        if(filesize<25){
+          setMp3(e.target.files[0])
+        }else{
+          alert('excess max size')
+        }
       }else{
-        alert('excess max size')
+        alert("Invalid file format")
       }
       
     }
   }
   const uploadMp4 =  (e) => {
     if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setMp4(e.target.files[0])
+      const fileExt = e.target.files[0].type?.split('/')[0]
+      if(['video'].includes(fileExt)){
+        var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
+        if(filesize<25){
+          setMp4(e.target.files[0])
+        }else{
+          alert('excess max size')
+        }
       }else{
-        alert('excess max size')
+        alert("Invalid file format")
       }
-      
     }
   }
   const uploadPdf =  (e) => {
     if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setPdf(e.target.files[0])
+      const fileExt = e.target.files[0].type?.split('/')[1]
+      if(['pdf'].includes(fileExt)){
+        var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
+        if(filesize<25){
+          setPdf(e.target.files[0])
+        }else{
+          alert('excess max size')
+        }
       }else{
-        alert('excess max size')
+        alert("Invalid file format")
       }
-      
-    }
+      }
   }
 
   const uploadWord =  (e) => {
     if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setWord(e.target.files[0])
+      const fileExt = e.target.files[0].name?.split('.').pop()
+      if(['txt',  'doc', 'docx'].includes(fileExt)){
+        var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
+        if(filesize<25){
+          setWord(e.target.files[0])
+        }else{
+          alert('excess max size')
+        }
       }else{
-        alert('excess max size')
+        alert("Invalid file format")
       }
-      
     }
   }
 
   const uploadZip =  (e) => {
     if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setZip(e.target.files[0])
+      const fileExt = e.target.files[0].name?.split('.').pop()
+      if(['zip'].includes(fileExt)){
+        var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
+        if(filesize<25){
+          setZip(e.target.files[0])
+        }else{
+          alert('excess max size')
+        }
       }else{
-        alert('excess max size')
+        alert("Invalid file format")
       }
-      
     }
   }
   const handleDragEnter = (e) => {
@@ -302,7 +338,6 @@ const SingleCreate = () => {
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log(e)
     let files = [...e.dataTransfer.files];
     setImg(files[0])
     setImgUrl(URL.createObjectURL(files[0]))
@@ -466,9 +501,9 @@ const SingleCreate = () => {
             Number to Mint
           </label>
           <input className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline" 
-            id="amount" 
-            name='amount'
-            value={formik.values.amount}
+            id="quantity" 
+            name='quantity'
+            value={formik.values.quantity}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             />
@@ -642,12 +677,12 @@ const SingleCreate = () => {
                 message && (
                   <div>
                     { status === 'error' ?
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     :
                     (status === "complete" ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     ): (

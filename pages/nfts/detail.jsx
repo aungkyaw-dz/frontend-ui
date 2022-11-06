@@ -8,6 +8,9 @@ import { BigNumber } from 'ethers';
 // import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 // import dynamic from 'next/dynamic';
 
+import { BiLinkExternal } from "react-icons/bi";
+import { Alchemy, AlchemySubscription, Network } from 'alchemy-sdk';
+
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
 const contractABI = MarketPlaceABI
@@ -86,21 +89,51 @@ const NftDetail = () => {
   const [method, setMethod] =useState()
   const [status, setStatus]=useState("")
   const [message, setMessage]=useState("")
+  const [listable, setListable] = useState(false)
+  const [qunatity, setQuantity] = useState(1)
+  const alchemyURL = process.env.REACT_APP_ALCHEMY_URL
 
   useEffect(()=>{
     setCollectionId(localStorage.getItem('nftId'))
   })
-
   useEffect(()=>{
     const getNft = async () => {
       try{
         if(collectionId){
+          
           const res = await axios.get(`${API_URL}/collections/${collectionId}`)
-          setCollection(res.data.data)
-          const nfts = res.data.data.nfts
+          console.log(res.data.data.address)
+          const collectionData = res.data.data
+          const ownedNfts = (await axios.get(`${alchemyURL}/getNFTs?owner=${data.address}&contractAddresses[]=${collectionData.address}&withTokenBalances=true`)).data.ownedNfts
+          console.log(ownedNfts)
+          if(ownedNfts?.length === 6){
+            setListable(true)
+            for(let i=0; i < 6; i++){
+              const balance = Number(ownedNfts[i]?.balance)
+              if(i === 0 ){
+                setQuantity(balance)
+              }
+              if(balance<qunatity){
+                setQuantity(balance)
+              }
+            }
+          }
+          // for(let i=0; i < 6; i++){
+          //   const nft = collectionData.nfts[i]
+          //   const owners = (await axios.get(`${alchemyURL}/getOwnersForToken?contractAddress=${collectionData.address}&tokenId=${i}`)).data.owners
+          //   if(!owners.includes(nft.Owner.walletAddress?.toLowerCase())){
+          //     data={
+          //       owner: owners[0]
+          //     }
+          //     const res = await axios.post(`${API_URL}/nfts/updateOwner/${nft.nftId}`, data)
+          //     // if(res){
+          //     //   window.location.reload()
+          //     // }
+          //   }
+          // }
+          setCollection(collectionData)
+          const nfts = collectionData.nfts
           await nfts.map((nft)=>{
-            console.log(nft.file, nft.tokenId)
-            console.log(nft)
             if(nft.fileType == 'image'){
               setImage(nft.file)
             }
@@ -125,7 +158,7 @@ const NftDetail = () => {
       catch(err) {
         console.log(err)
       }
-   }
+    }
     getNft()
   },[collectionId])
 
@@ -232,7 +265,7 @@ const NftDetail = () => {
 
   useEffect(()=>{
     if(method==="add"){
-      setTranscationData(window.contract.methods.createMarketItem(collection?.address , 1 , BigNumber.from((price*1000000000000000000).toString())).encodeABI())
+      setTranscationData(window.contract.methods.createMarketItem(collection?.address , qunatity , BigNumber.from((price*1000000000000000000).toString())).encodeABI())
     }
     if(method==='buy'){
       setTranscationData(window.contract.methods.createMarketSale(collection?.address , collection?.marketId ).encodeABI())
@@ -273,52 +306,10 @@ const NftDetail = () => {
     window.location.reload()
   }
 
-  const ImageInput = useRef(null)
-  const pdfInput = useRef(null)
-  const wordInput = useRef(null)
-  const videoInput = useRef(null)
-  
-  const uploadMp4 =  (e) => {
-    if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setVideo(e.target.files[0])
-      }else{
-        alert('excess max size')
-      }
-      
-    }
-  }
-  const uploadPdf =  (e) => {
-    if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setPdf(e.target.files[0])
-      }else{
-        alert('excess max size')
-      }
-      
-    }
-  }
-
-  const uploadWord =  (e) => {
-    if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setWord(e.target.files[0])
-      }else{
-        alert('excess max size')
-      }
-      
-    }
-  }
-
-  
-  const docs = [
-    { uri: word },
-  ]
 
 
+
+  const blockChainExplore = process.env.REACT_APP_BLOCK_CHAIN_EXPLORE || "https://mumbai.polygonscan.com/"
   return(
     <div className="container mx-auto">
        <Head>
@@ -330,7 +321,7 @@ const NftDetail = () => {
       <div>
       <div className='md:flex justify-evenly items-start'>
         <div className='md:w-1/2 '>
-          <div className=" h-96 border-2 w-auto flex justify-center items-center p-2 m-auto rounded-md shadow-md">
+          <div className=" h-96 border-2 w-auto flex justify-center items-center p-2 m-auto rounded-md shadow-md overflow-hidden">
             <div>
               <img
                 className='w-96'
@@ -416,7 +407,9 @@ const NftDetail = () => {
           </div>
           <div className='flex justify-around p-2'>
             <h6 className='text-lg text-gray-700 font-bold p-2 w-48'>Contract Address</h6>
-            <h6 className='text-lg font-medium text-gray-700 border-2 p-2 w-60 text-center'>{shortText(collection.address)}</h6>
+            <h6 className='text-lg font-medium text-gray-700 border-2 p-2 w-60 flex justify-center items-center'>
+              {shortText(collection.address)}<a href={`${blockChainExplore}/address/${collection.address}`} target="_blank"><BiLinkExternal/></a>
+            </h6>
           </div>
           <div className='flex justify-around p-2 hidden'>
             <h6 className='text-lg text-gray-700 font-bold p-2  w-48'>Token-ID</h6>
@@ -449,11 +442,28 @@ const NftDetail = () => {
                     <Modal.Body>
                       {
                         !status && (
-                        <div className=" p-5 mb-4 ">
-                          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">
-                            Price
-                          </label>
-                          <input id="price" className='className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline"' value={price} onChange={(e)=>{setPrice(e.target.value)}}/>
+                        <div>
+                          <div className=" p-5 mb-4 " style={{display: 'none'}}>
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">
+                              Qunatity
+                            </label>
+                            
+                          </div>
+                          {listable ? (
+                            <div className=" p-5 mb-4 ">
+                              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">
+                                Price
+                              </label>
+                              <input id="price" className='className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline"' value={price} onChange={(e)=>{setPrice(e.target.value)}}/>
+                            </div>
+                          ):(
+                            <p className='text-sm font-medium text-gray-700 p-5 pt-2 w-100 text-center'>
+                              Cannot add to the market. Please make sure you owned all nfts from these collection
+                            </p>
+                          )
+                            
+                          }
+                          
                         </div>
                         ) 
                       }
@@ -487,7 +497,7 @@ const NftDetail = () => {
                     </Modal.Body>
                     <Modal.Footer>
                     {
-                        !message && (
+                        (!message && listable)  && (
                           <div className='w-full'>
                           <div className='flex justify-between w-100 grow  p-5'>
                             <Button 
@@ -552,7 +562,7 @@ const NftDetail = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ): (
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ))
@@ -596,8 +606,8 @@ const NftDetail = () => {
               {pdf&&(
                   <div className='p-5 m-auto rounded-md shadow-md'>
                     <h1 className='text-lg text-gray-700  p-5 font-bold'>PFD File</h1>
-
-                    <iframe title={pdf.name} src={pdf} width="100%" height="500" allow="autoplay"></iframe>
+                    <iframe title={pdf.name} src={`https://docs.google.com/gview?url=${pdf}&embedded=true`} width="100%" height="500" >
+                    </iframe>
                   </div>
                 )
               }

@@ -50,7 +50,6 @@ function MyApp({ Component, pageProps }) {
       alchemyProvider({ alchemyId: ALCHEMY_KEY }),
     ]
   );
-  console.log(ALCHEMY_KEY)
   const { connectors } = getDefaultWallets({
     appName: 'My RainbowKit App',
     chains
@@ -68,9 +67,11 @@ function MyApp({ Component, pageProps }) {
   return (
     <WagmiConfig  client={wagmiClient}>
       <RainbowKitProvider avatar={CustomAvatar}  chains={chains} coolMode>
-        <Navbar/>
-        <Component {...pageProps} />  
-        <Footer/>
+        <div style={{minHeight: "100vh", display: "flex", flexDirection:"column", justifyContent: "space-between"}}>
+          <Navbar/>
+          <Component {...pageProps} />  
+          <Footer/>
+        </div>
       </RainbowKitProvider>
     </WagmiConfig >
   )
