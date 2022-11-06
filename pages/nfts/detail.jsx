@@ -108,14 +108,19 @@ const NftDetail = () => {
           console.log(ownedNfts)
           if(ownedNfts?.length === 6){
             setListable(true)
+            let qty = 1
             for(let i=0; i < 6; i++){
               const balance = Number(ownedNfts[i]?.balance)
               if(i === 0 ){
-                setQuantity(balance)
+                qty = balance
               }
-              if(balance<qunatity){
-                setQuantity(balance)
+              console.log(qty, '1')
+              if(balance<qty){
+                qty= balance
               }
+              console.log(qty, '2')
+
+              setQuantity(qty)
             }
           }
           // for(let i=0; i < 6; i++){
@@ -161,11 +166,11 @@ const NftDetail = () => {
     }
     getNft()
   },[collectionId])
+  console.log(qunatity, "sadf")
 
   const contractAddress = process.env.MARKET_ADDRESS;
   const API_URL = process.env.API_URL;
   const web3 = createAlchemyWeb3(API_URL);
-  
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
     // const receipt = await web3.eth.getTransactionReceipt({hash: txData.hash})
