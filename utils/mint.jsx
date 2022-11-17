@@ -4,7 +4,7 @@ import { useAccount, useSendTransaction, useConnect  } from 'wagmi';
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 const contractABI = require('../UrbanTechNFT.json')
 const contractAddress = process.env.CONTRACT_ADDRESS;
-const API_URL = process.env.API_URL;
+const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 export const SingleMint = async (file, data) => {
   try{

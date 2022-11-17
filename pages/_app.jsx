@@ -19,11 +19,11 @@ import Footer from '../components/footer';
 
 const CustomAvatar = ({ address,ensImage, size })=>{
   const [img, setImg] = useState()
-  const API_URL = process.env.API_URL
+  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
 
   useEffect(()=>{
       const getUser = async () =>{
-          const res = await axios.get(`${API_URL}/users/${address}`)
+          const res = await axios.get(`${REACT_APP_BACKEND_URL}/users/${address}`)
           if(res){
             setImg(res.data.data?.profileImage)
           }
@@ -50,7 +50,6 @@ function MyApp({ Component, pageProps }) {
       alchemyProvider({ alchemyId: ALCHEMY_KEY }),
     ]
   );
-  console.log(ALCHEMY_KEY)
   const { connectors } = getDefaultWallets({
     appName: 'My RainbowKit App',
     chains
@@ -68,9 +67,11 @@ function MyApp({ Component, pageProps }) {
   return (
     <WagmiConfig  client={wagmiClient}>
       <RainbowKitProvider avatar={CustomAvatar}  chains={chains} coolMode>
-        <Navbar/>
-        <Component {...pageProps} />  
-        <Footer/>
+        <div style={{minHeight: "100vh", display: "flex", flexDirection:"column", justifyContent: "space-between"}}>
+          <Navbar/>
+          <Component {...pageProps} />  
+          <Footer/>
+        </div>
       </RainbowKitProvider>
     </WagmiConfig >
   )

@@ -2,20 +2,26 @@ import axios from 'axios'
 import { useRef, useEffect, useState } from 'react'
 import Head from "next/head";
 import { Button, Dropdown, Modal } from 'flowbite-react';
-import { useAccount, useSendTransaction, useWaitForTransaction, useConnect, useDisconnect } from 'wagmi';
+import { useAccount, useSendTransaction, useContractRead, useConnect, useDisconnect } from 'wagmi';
 import { MarketPlaceABI, LeafABI } from '../../utils/abi';
 import { BigNumber } from 'ethers';
 // import DocViewer, { DocViewerRenderers } from "react-doc-viewer";
 // import dynamic from 'next/dynamic';
 
+import { BiLinkExternal } from "react-icons/bi";
+import { Alchemy, AlchemySubscription, Network } from 'alchemy-sdk';
+import MarketList from '../../components/nfts/marketList';
+
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
 const contractABI = MarketPlaceABI
 const LeafContractABI = LeafABI
-const API_URL = process.env.API_URL
+const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
 
-const Approve = ({collectionAddress, collectionId}) =>{
-  const web3 = createAlchemyWeb3(API_URL);
+const Approve = ({collectionAddress, collectionId, setApproved}) =>{
+
+
+  const web3 = createAlchemyWeb3(REACT_APP_BACKEND_URL);
   const contract = new web3.eth.Contract(LeafContractABI.abi, collectionAddress);
   const marketAddress = process.env.MARKET_ADDRESS;
   const { data } = useAccount()
@@ -29,30 +35,42 @@ const Approve = ({collectionAddress, collectionId}) =>{
   };
   const { data: txData, isSuccess, sendTransaction } =
           useSendTransaction({
-          request: transactionParameters,
-          onError(error) {
-              if(error.code == "INSUFFICIENT_FUNDS"){
-                  alert("Sorry, your wallet has insufficient funds. Please fund your wallet via Binance")
+            request: transactionParameters,
+            onError(error) {
+                if(error.code == "INSUFFICIENT_FUNDS"){
+                    alert("Sorry, your wallet has insufficient funds. Please fund your wallet via Binance")
+                }
+                if(error.includes("insufficient")){
+                    alert("Sorry, your wallet has insufficient funds. Please fund your wallet via Binance")
+                }
+              },
+            onSuccess(data) {
+              const waitRes = async() =>{
+                const wait  = await data.wait()
+                if(wait){
+                  window.location.reload()
+                }
               }
-              if(error.includes("insufficient")){
-                  alert("Sorry, your wallet has insufficient funds. Please fund your wallet via Binance")
-              }
+              waitRes()
             },
-          onSuccess(data) {
-            const updateCollection = async ()=>{
-                const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, {approved: 1})
-            }
-            updateCollection()
-            console.log('Success', data)
-          },
           })
-  const {data: wait} = useWaitForTransaction({
-    hash: txData?.hash,
-    onSuccess(data) {
-      window.location.reload()
-      console.log('Success', data)
+  
+
+
+
+  const { data:readData, isError, isLoading } = useContractRead(
+    {
+      addressOrName: collectionAddress,
+      contractInterface: LeafContractABI.abi
     },
-  })
+    'isApprovedForAll',
+    {
+      args: [data.address, marketAddress],
+      onSuccess(data) {
+        setApproved(data)
+      },
+    }
+    )
   
   const approve = ()=>{
     if(!activeConnector){
@@ -86,21 +104,57 @@ const NftDetail = () => {
   const [method, setMethod] =useState()
   const [status, setStatus]=useState("")
   const [message, setMessage]=useState("")
+  const [listable, setListable] = useState(false)
+  const [approved, setApproved] = useState(false)
+
+  const [qunatity, setQuantity] = useState({
+    'image': 0,
+    'pdf': 0,
+    'word': 0,
+    'mp3': 0,
+    'mp4': 0,
+    'zip': 0
+  })
+  const [total, setTotal] = useState(0)
+  const [minQty, setMinQty] = useState(1)
+  const [balances, setBalances] = useState([])
+  const alchemyURL = process.env.REACT_APP_ALCHEMY_URL
 
   useEffect(()=>{
     setCollectionId(localStorage.getItem('nftId'))
   })
-
   useEffect(()=>{
     const getNft = async () => {
       try{
         if(collectionId){
-          const res = await axios.get(`${API_URL}/collections/${collectionId}`)
-          setCollection(res.data.data)
-          const nfts = res.data.data.nfts
+          
+          const res = await axios.get(`${REACT_APP_BACKEND_URL}/collections/${collectionId}`)
+          const collectionData = res.data.data
+          if(data?.address){
+            const ownedNfts = (await axios.get(`${alchemyURL}/getNFTs?owner=${data?.address}&contractAddresses[]=${collectionData.address}&withTokenBalances=true`)).data.ownedNfts
+            if(ownedNfts?.length > 0){
+              setListable(true)
+              let qty = 1
+              let balances = []
+              for(let i=0; i < ownedNfts?.length; i++){
+                const tokenId = parseInt(ownedNfts[i]?.id?.tokenId, 16)
+                const balance = Number(ownedNfts[i]?.balance)||0
+                balances[tokenId] = balance
+                if(i === 0 ){
+                  qty = balance
+                }
+                if(balance<qty){
+                  qty= balance
+                }
+                setMinQty(qty)
+              }
+              setBalances(balances)
+            }
+          }
+
+          setCollection(collectionData)
+          const nfts = collectionData.nfts
           await nfts.map((nft)=>{
-            console.log(nft.file, nft.tokenId)
-            console.log(nft)
             if(nft.fileType == 'image'){
               setImage(nft.file)
             }
@@ -125,14 +179,12 @@ const NftDetail = () => {
       catch(err) {
         console.log(err)
       }
-   }
+    }
     getNft()
   },[collectionId])
-
   const contractAddress = process.env.MARKET_ADDRESS;
-  const API_URL = process.env.API_URL;
-  const web3 = createAlchemyWeb3(API_URL);
-  
+  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  const web3 = createAlchemyWeb3(REACT_APP_BACKEND_URL);
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
     // const receipt = await web3.eth.getTransactionReceipt({hash: txData.hash})
@@ -145,7 +197,6 @@ const NftDetail = () => {
   const transactionParameters = {
       to: contractAddress,
       from: data?.address,
-      value: method === "buy" ? BigNumber.from((collection.price*1000000000000000000).toString()):`0x${(0).toString(16)}`,
       'data': transactionData
   };
 
@@ -167,55 +218,24 @@ const NftDetail = () => {
           onSuccess(res) {
             const updateCollection = async ()=>{
               setMessage("Please wait for the transaction to complete.")
-              if(method==="add"){
-                const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, 
+              const wait = await res.wait()
+              const logs = wait?.logs
+              const marketId = web3.utils.toNumber(logs[logs.length-2]?.topics[1])
+
+              const resData = await axios.post(`${REACT_APP_BACKEND_URL}/collections/add-list/${collectionId}`, 
                 {
-                  listed: 1, 
                   price: price,
-                  txid: txData?.hash
+                  walletAddress: data?.address,
+                  marketId: marketId,
+                  total: total
                 })
-              }
-              if(method==="buy"){
-                const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, 
-                { approved: false, 
-                  listed: false,
-                  price: 0,
-                  owner: data?.address
-                })
-              }
+              setStatus('complete')
+              setMessage('Successfully listed')
             }
             updateCollection()
-            console.log('Success', res)
           },
           })
           
-  const {data:wait} = useWaitForTransaction({
-    hash: txData?.hash
-  })
-
-
-  useEffect(()=>{
-    if(wait){
-      const updateCollection = async ()=>{
-        const logs = wait?.logs
-        if(method==="add"){
-          const marketId = web3.utils.toNumber(logs[logs.length-2]?.topics[1])
-          const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, 
-                {marketId: marketId}
-                )
-          if(!resData.data.error){
-            setStatus('complete')
-            setMessage('Successfully listed to marketplace')
-          }
-        }
-        if(method==="buy"){
-          setStatus('complete')
-          setMessage('Yay, successfully bought')
-        }
-      }
-      updateCollection()
-    }
-  },[wait])
 
   const [more, setMore] = useState(false)
   const descriptionText = (value) => {
@@ -231,13 +251,36 @@ const NftDetail = () => {
   }
 
   useEffect(()=>{
+    const ids = []
+    const amounts = []
+    if(qunatity.image>0){
+      ids.push(0)
+      amounts.push(qunatity.image)
+    }
+    if(qunatity.pdf>0){
+      ids.push(1)
+      amounts.push(qunatity.pdf)
+    }
+    if(qunatity.word>0){
+      ids.push(2)
+      amounts.push(qunatity.word)
+    }
+    if(qunatity.mp3>0){
+      ids.push(3)
+      amounts.push(qunatity.mp3)
+    }
+    if(qunatity.mp4>0){
+      ids.push(4)
+      amounts.push(qunatity.mp4)
+    }
+    if(qunatity.zip>0){
+      ids.push(5)
+      amounts.push(qunatity.zip)
+    }
     if(method==="add"){
-      setTranscationData(window.contract.methods.createMarketItem(collection?.address , 1 , BigNumber.from((price*1000000000000000000).toString())).encodeABI())
+      setTranscationData(window.contract.methods.createMarketItem(collection?.address , ids , amounts , BigNumber.from((price*1000000000000000000).toString())).encodeABI())
     }
-    if(method==='buy'){
-      setTranscationData(window.contract.methods.createMarketSale(collection?.address , collection?.marketId ).encodeABI())
-    }
-  },[method,price])
+  },[method, price, qunatity])
 
   const addMarket = () =>{
     setShow(true)
@@ -256,7 +299,6 @@ const NftDetail = () => {
   const buyItem = ()=>{
     if(data?.address){
       setShow1(true)
-      setMethod("buy")
     }
     else{
       alert("please connect wallet")
@@ -270,55 +312,25 @@ const NftDetail = () => {
     setStatus("")
     setMessage("")
     setMethod()
-    window.location.reload()
   }
 
-  const ImageInput = useRef(null)
-  const pdfInput = useRef(null)
-  const wordInput = useRef(null)
-  const videoInput = useRef(null)
+  const plus = (key, max)=> {
+    qunatity[key] =qunatity[key]<max ? qunatity[key]+1: qunatity[key]
+    setTotal(total+1)
+    setQuantity({
+      ...qunatity,
+    })
+  }
   
-  const uploadMp4 =  (e) => {
-    if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setVideo(e.target.files[0])
-      }else{
-        alert('excess max size')
-      }
-      
-    }
-  }
-  const uploadPdf =  (e) => {
-    if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setPdf(e.target.files[0])
-      }else{
-        alert('excess max size')
-      }
-      
-    }
+  const minus = (key)=> {
+    qunatity[key] =qunatity[key]>0 ? qunatity[key]-1: 0
+    setTotal(total>0?total-1:total)
+    setQuantity({
+      ...qunatity,
+    })
   }
 
-  const uploadWord =  (e) => {
-    if(e.target.files && e.target.files[0]){
-      var filesize = ((e.target.files[0].size/1024)/1024).toFixed(4)
-      if(filesize<25){
-        setWord(e.target.files[0])
-      }else{
-        alert('excess max size')
-      }
-      
-    }
-  }
-
-  
-  const docs = [
-    { uri: word },
-  ]
-
-
+  const blockChainExplore = process.env.REACT_APP_BLOCK_CHAIN_EXPLORE || "https://mumbai.polygonscan.com/"
   return(
     <div className="container mx-auto">
        <Head>
@@ -330,7 +342,7 @@ const NftDetail = () => {
       <div>
       <div className='md:flex justify-evenly items-start'>
         <div className='md:w-1/2 '>
-          <div className=" h-96 border-2 w-auto flex justify-center items-center p-2 m-auto rounded-md shadow-md">
+          <div className=" h-96 border-2 w-auto flex justify-center items-center p-2 m-auto rounded-md shadow-md overflow-hidden">
             <div>
               <img
                 className='w-96'
@@ -405,7 +417,7 @@ const NftDetail = () => {
             <h6 className='text-lg font-medium text-gray-700 border-2 p-2 w-100'>{collection.nfts[0]?.createdAt}</h6>
           </div>
           <div className='flex p-5 justify-around'>
-            <div className='w-fit text-center mr-5'>
+            <div className='w-fit text-center mr-5' style={{display: "none"}}>
               <h6 className='text-lg text-gray-700 font-bold'>Owner</h6>
               <h6 className='text-lg font-medium'>{collection?.Owner?.username}</h6>
             </div>
@@ -416,7 +428,9 @@ const NftDetail = () => {
           </div>
           <div className='flex justify-around p-2'>
             <h6 className='text-lg text-gray-700 font-bold p-2 w-48'>Contract Address</h6>
-            <h6 className='text-lg font-medium text-gray-700 border-2 p-2 w-60 text-center'>{shortText(collection.address)}</h6>
+            <h6 className='text-lg font-medium text-gray-700 border-2 p-2 w-60 flex justify-center items-center'>
+              {shortText(collection.address)}<a href={`${blockChainExplore}/address/${collection.address}`} target="_blank"><BiLinkExternal/></a>
+            </h6>
           </div>
           <div className='flex justify-around p-2 hidden'>
             <h6 className='text-lg text-gray-700 font-bold p-2  w-48'>Token-ID</h6>
@@ -428,9 +442,18 @@ const NftDetail = () => {
               <h6 className='text-lg font-medium text-gray-700 border-2 p-2  w-60 text-center'>{collection.price} MATIC</h6>
             </div>
           )}
+
+          {
+            (listable&& !approved) &&
+            (
+              <div className='flex justify-end p-5'>
+                <Approve collectionAddress={collection?.address} collectionId={collection?.collectionId} setApproved={setApproved}/>
+              </div>
+            )
+          }
             
           {
-            (collection.Owner?.walletAddress === data?.address && collection.approved && !collection.listed) &&
+            (listable && approved) &&
             (
               <div className='flex justify-end p-5'>
                 <Button onClick={()=>addMarket()}>Add to Market</Button>
@@ -449,11 +472,59 @@ const NftDetail = () => {
                     <Modal.Body>
                       {
                         !status && (
-                        <div className=" p-5 mb-4 ">
-                          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">
-                            Price
-                          </label>
-                          <input id="price" className='className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline"' value={price} onChange={(e)=>{setPrice(e.target.value)}}/>
+                        <div>
+                          <div className="p-2   flex w-100 justify-between items-center">
+                             <p>Image ( {balances[0]||0} - owned )</p> 
+                             <div className='flex w-100 justify-between items-center'>
+                               <Button onClick={()=>minus('image')}>-</Button><p className='p-2'>{qunatity?.image}</p><Button onClick={()=>{plus('image', balances[0])}}>+</Button>
+                             </div>
+                          </div>
+                          <div className="p-2   flex w-100 justify-between items-center">
+                             <p>PDF ( {balances[1]||0} - owned )</p> 
+                             <div className='flex w-100 justify-between items-center'>
+                               <Button onClick={()=>minus('pdf')}>-</Button><p className='p-2'>{qunatity?.pdf}</p><Button onClick={()=>{plus('pdf', balances[2])}}>+</Button>
+                             </div>
+                          </div>
+                          <div className="p-2   flex w-100 justify-between items-center">
+                             <p>WORD/TEXT ( {balances[2]||0} - owned )</p> 
+                             <div className='flex w-100 justify-between items-center'>
+                               <Button onClick={()=>minus('word')}>-</Button><p className='p-2'>{qunatity?.word}</p><Button onClick={()=>{plus('word', balances[3])}}>+</Button>
+                             </div>
+                          </div>
+                          <div className="p-2   flex w-100 justify-between items-center">
+                             <p>MP3 ( {balances[3]||0} - owned )</p> 
+                             <div className='flex w-100 justify-between items-center'>
+                               <Button onClick={()=>minus('mp3')}>-</Button><p className='p-2'>{qunatity?.mp3}</p><Button onClick={()=>{plus('mp3', balances[3])}}>+</Button>
+                             </div>
+                          </div>
+                          <div className="p-2   flex w-100 justify-between items-center">
+                             <p>MP4 ( {balances[4]||0} - owned )</p> 
+                             <div className='flex w-100 justify-between items-center'>
+                               <Button onClick={()=>minus('mp4')}>-</Button><p className='p-2'>{qunatity?.mp4}</p><Button onClick={()=>{plus('mp4', balances[4])}}>+</Button>
+                             </div>
+                          </div>
+                          <div className="p-2 flex w-100 justify-between items-center">
+                             <p>Zip ( {balances[5]||0} - owned )</p> 
+                             <div className='flex w-100 justify-between items-center'>
+                               <Button onClick={()=>minus('zip')}>-</Button><p className='p-2'>{qunatity?.zip}</p><Button onClick={()=>{plus('zip', balances[5])}}>+</Button>
+                             </div>
+                          </div>
+                          
+                          {listable ? (
+                            <div className=" p-5 mb-4 ">
+                              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">
+                              Total Price
+                              </label>
+                              <input id="price" className='className="shadow appearance-none border w-full rounded  py-2 px-3 text-gray-700 leading-tight focus:outline-none   focus:shadow-outline"' value={price} onChange={(e)=>{setPrice(e.target.value)}}/>
+                            </div>
+                          ):(
+                            <p className='text-sm font-medium text-gray-700 p-5 pt-2 w-100 text-center'>
+                              Cannot add to the market. Please make sure you owned all nfts from these collection
+                            </p>
+                          )
+                            
+                          }
+                          
                         </div>
                         ) 
                       }
@@ -487,7 +558,7 @@ const NftDetail = () => {
                     </Modal.Body>
                     <Modal.Footer>
                     {
-                        !message && (
+                        (!message && listable)  && (
                           <div className='w-full'>
                           <div className='flex justify-between w-100 grow  p-5'>
                             <Button 
@@ -512,19 +583,12 @@ const NftDetail = () => {
             )
           }
 
-{
-            (collection.Owner?.walletAddress === data?.address && !collection.approved) &&
-            (
-              <div className='flex justify-end p-5'>
-                <Approve collectionAddress={collection?.address} collectionId={collection?.collectionId}/>
-              </div>
-            )
-          }
+
 
           
 
           {
-            (collection.Owner?.walletAddress != data?.address && collection.listed) &&
+            (collection.listedItems.length> 0) &&
             (
               <div className='flex justify-end p-5'>
                 <Button onClick={buyItem}>Buy</Button>
@@ -532,11 +596,12 @@ const NftDetail = () => {
                     show={show1}
                     position="center"
                     onClose={onClose}
-                    size="sm"
                     popup={false}
+                    size="sm"
+
                   >
                     <Modal.Header>
-                      Confirmation to buy
+                        Listed Items
                     </Modal.Header>
                     <Modal.Body>
                       {
@@ -552,7 +617,7 @@ const NftDetail = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ): (
-                              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 m-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                               </svg>
                             ))
@@ -561,29 +626,8 @@ const NftDetail = () => {
                           </div>
                         )
                       }
-                      
+                      <MarketList lists={collection.listedItems} contractAddress={collection.address}/>
                     </Modal.Body>
-                    <Modal.Footer className="justify-around">
-                      {
-                        !message && (
-                          <div className='w-full'>
-                          <div className='flex justify-between w-100 grow  p-5'>
-                            <Button 
-                              onClick={confirm}
-                            >
-                              Confirm
-                            </Button>
-                            <Button
-                              color="gray"
-                              onClick={onClose}
-                            >
-                              Cancel
-                            </Button>
-                            </div>
-                          </div>
-                        )
-                      }
-                    </Modal.Footer>
                   </Modal>
               </div>
             )
@@ -596,8 +640,8 @@ const NftDetail = () => {
               {pdf&&(
                   <div className='p-5 m-auto rounded-md shadow-md'>
                     <h1 className='text-lg text-gray-700  p-5 font-bold'>PFD File</h1>
-
-                    <iframe title={pdf.name} src={pdf} width="100%" height="500" allow="autoplay"></iframe>
+                    <iframe title={pdf.name} src={`https://docs.google.com/gview?url=${pdf}&embedded=true`} width="100%" height="500" >
+                    </iframe>
                   </div>
                 )
               }

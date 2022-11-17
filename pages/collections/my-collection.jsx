@@ -9,13 +9,13 @@ import { Button } from 'flowbite-react';
 const CollectionDetail = () => {
   const {data:account}= useAccount()
   const [collections, setCollections] = useState(null);
-  const API_URL = process.env.API_URL
+  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
   const [limit, setLimit] = useState(10)
   useEffect(()=>{
     const getCollection = async () => {
       try{
         if(account){
-          const res = await axios.get(`${API_URL}/collections/my-collections/${account.address}`)
+          const res = await axios.get(`${REACT_APP_BACKEND_URL}/collections/my-collections/${account.address}`)
           setCollections(res.data.data)
         }
       }

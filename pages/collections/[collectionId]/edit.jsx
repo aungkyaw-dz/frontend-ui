@@ -7,7 +7,7 @@ import { Field, useFormik } from 'formik';
 const CollectionUpdate = () => {
   const router = useRouter()
   const { collectionId } = router.query
-  const API_URL = process.env.API_URL
+  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
 
   const [collection, setCollection] = useState(null);
   const [logo, setLogo] = useState(null)
@@ -31,7 +31,7 @@ const CollectionUpdate = () => {
       formData.append("description", values.description);
       try{
 
-        const collectionRes = await axios.post(`${API_URL}/collections/update/${collection.collectionId}`, 
+        const collectionRes = await axios.post(`${REACT_APP_BACKEND_URL}/collections/update/${collection.collectionId}`, 
                                       formData, 
                                       {headers: {
                                         'Content-Type': `multipart/form-data;`,
@@ -53,7 +53,7 @@ const CollectionUpdate = () => {
     const getCollection = async () => {
       try{
         if(collectionId){
-          const res = await axios.get(`${API_URL}collections/${collectionId}`)
+          const res = await axios.get(`${REACT_APP_BACKEND_URL}collections/${collectionId}`)
           setCollection(res.data.data)
           formik.setValues(res.data.data)
           setBannerUrl(res.data.data.banner)

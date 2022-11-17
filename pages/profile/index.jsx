@@ -3,16 +3,15 @@ import axios from "axios";
 import { useAccount, useConnect } from "wagmi";
 import { useEffect, useState } from "react";
 import { useFormik } from 'formik';
-const API_URL = process.env.API_URL;
+const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 const Profile = () => {
     
   const [img, setImg] = useState()
   const [imgUrl, setImgUrl] = useState()
   const {data: account} = useAccount()
-  const API_URL = process.env.API_URL
+  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
   const { connect, connectors, activeConnector, isConnecting} = useConnect()
-  console.log(isConnecting)
   const formik = useFormik({
     initialValues: {
       username: '',
@@ -20,17 +19,15 @@ const Profile = () => {
     },
     onSubmit: async (values) => {
       let formData = new FormData();
-      console.log(values)
       if(img){
         formData.append("profileImage", img);
       }
       formData.append("username", values.username);
       if(values.email){
-        console.log(values.email)
         formData.append("email", values.email);
       }
       try{
-        const userRes = await axios.post(`${API_URL}/users/edit/${account.address}`, 
+        const userRes = await axios.post(`${REACT_APP_BACKEND_URL}/users/edit/${account.address}`, 
                                       formData, 
                                       {headers: {
                                         'Content-Type': `multipart/form-data;`,
@@ -38,12 +35,10 @@ const Profile = () => {
                                     )
         if(userRes){
           const name = userRes.data.data.name
-          console.log(userRes)
           // router.push(`/collections/${name}`)
         }
         alert('Update success')
       } catch (err){
-        console.log(err)
         alert("Cannot Update")
       }
     },
@@ -51,8 +46,7 @@ const Profile = () => {
 
   useEffect(()=>{
     const getUser = async () =>{
-        const res = await axios.get(`${API_URL}/users/${account.address}`)
-        console.log(res)
+        const res = await axios.get(`${REACT_APP_BACKEND_URL}/users/${account.address}`)
         if(res){
           formik.setValues(res.data.data)
           setImgUrl(res.data.data?.profileImage)
@@ -89,9 +83,7 @@ const Profile = () => {
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log(e)
     let files = [...e.dataTransfer.files];
-    console.log(files)
     setImg(files[0])
     setImgUrl(URL.createObjectURL(files[0]))
   }

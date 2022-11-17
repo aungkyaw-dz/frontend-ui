@@ -7,7 +7,7 @@ import LinkTo from '../../../components/linkto';
 const CollectionDetail = () => {
   const router = useRouter()
   const { collectionId } = router.query
-  const API_URL = process.env.API_URL
+  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
 
   const [collection, setCollection] = useState(null);
 
@@ -15,7 +15,7 @@ const CollectionDetail = () => {
     const getCollection = async () => {
       try{
         if(collectionId){
-          const res = await axios.get(`${API_URL}/collections/${collectionId}`)
+          const res = await axios.get(`${REACT_APP_BACKEND_URL}/collections/${collectionId}`)
           console.log(res)
           setCollection(res.data.data)
         }
