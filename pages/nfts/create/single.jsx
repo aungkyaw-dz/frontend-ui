@@ -35,14 +35,14 @@ const SingleCreate = () => {
   const { connect, connectors, activeConnector, isConnecting } = useConnect()
 
   const contractAddress = process.env.CONTRACT_ADDRESS;
-  const API_URL = process.env.API_URL;
-  const web3 = createAlchemyWeb3(API_URL);
+  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+  const web3 = createAlchemyWeb3(REACT_APP_BACKEND_URL);
 
 
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
     const getCollections = async () => {
-      const resData =await axios.get(`${API_URL}/collections/my-collections/${account?.address}`)
+      const resData =await axios.get(`${REACT_APP_BACKEND_URL}/collections/my-collections/${account?.address}`)
       if(resData){
         setCollections(resData.data.data)
       }
@@ -92,7 +92,7 @@ const SingleCreate = () => {
             setShow(true)
             setStatus('create')
             setMsg("Creating the metadata")
-            let nftRes = await axios.post(`${API_URL}/nfts/create`, formData)
+            let nftRes = await axios.post(`${REACT_APP_BACKEND_URL}/nfts/create`, formData)
             if(nftRes){
               setMetaData(nftRes.data.mintData)
               setCollectionId(nftRes.data.collection.collectionId)
@@ -141,12 +141,7 @@ const SingleCreate = () => {
         metaData?.zip?.tokenUri|| "" 
       ], 
       [
-        metaData?.image ? true: false,
-        metaData?.pdf ? true: false,
-        metaData?.audio ? true: false,
-        metaData?.text ? true: false,
-        metaData?.video ? true: false,
-        metaData?.zip ? true: false,
+        0,1,2,3,4,5
       ], 
       [
         formik.values.quantity,
@@ -205,7 +200,7 @@ const SingleCreate = () => {
           address : wait?.logs[1].address
         }
         const updateCollection = async() => {
-          const resData = await axios.post(`${API_URL}/collections/update/${collectionId}`, updateData)
+          const resData = await axios.post(`${REACT_APP_BACKEND_URL}/collections/update/${collectionId}`, updateData)
           if(!resData.error){
             setStatus('complete')
             setMsg('Transcation is Complete')

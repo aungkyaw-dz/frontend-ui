@@ -39,3 +39,17 @@ a {
 .max-w-sm{
   max-width: 20rem!important;
 }
+
+.h-full{
+  height: 100vh;
+}
+
+.h-modal .max-w-sm {
+  min-width: 800px;
+}
+
+@media only screen and (max-width: 800px) {
+  .h-modal .max-w-sm {
+    min-width: 100%;
+  }
+}

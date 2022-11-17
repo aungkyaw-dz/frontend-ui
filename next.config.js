@@ -8,7 +8,7 @@ const nextConfig = {
     REACT_APP_ALCHEMY_KEY: process.env.REACT_APP_ALCHEMY_KEY,
     REACT_APP_ALCHEMY_URL: process.env.REACT_APP_ALCHEMY_URL,
     CONTRACT_ADDRESS: process.env.CONTRACT_ADDRESS,
-    API_URL: process.env.API_URL,
+    REACT_APP_BACKEND_URL: process.env.REACT_APP_BACKEND_URL,
     MARKET_ADDRESS: process.env.MARKET_ADDRESS
   },
   eslint: {

@@ -8,7 +8,7 @@ const Login = () => {
 
   const { data, isError, isLoading } = useAccount()
   const { disconnect } = useDisconnect()
-  const API_URL = process.env.API_URL
+  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
 
   useEffect(()=>{
     if(data){
@@ -17,7 +17,7 @@ const Login = () => {
           walletAddress: data.address
         }
         try{
-          const resData = await axios.post( `${API_URL}/admin/login`, loginData)
+          const resData = await axios.post( `${REACT_APP_BACKEND_URL}/admin/login`, loginData)
           if(resData){
             localStorage.setItem('jwtToken', resData.data.data.accessToken)
           }

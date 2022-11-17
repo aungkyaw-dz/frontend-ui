@@ -15,12 +15,12 @@ const Collections = () => {
       router.push('/admin/login')
     }
   },[])
-  const API_URL = process.env.API_URL
+  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
   console.log(DefaultImage)
   const [collections, setCollections] = useState(null);
   useEffect(()=>{
     const getCollections = async () => {
-      const res = await axios.get(`${API_URL}/collections/list`)
+      const res = await axios.get(`${REACT_APP_BACKEND_URL}/collections/list`)
       setCollections(res.data.data)
     }
     getCollections()

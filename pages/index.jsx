@@ -18,19 +18,19 @@ export default function Home() {
   const [price, setPrice] = useState('')
   const [categories, setCategories] = useState('')
   const [chain, setChain] = useState('')
-  const API_URL = process.env.API_URL
+  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
   const [limit, setLimit] = useState(10)
   useEffect(()=>{
     // const getfeatured = async ()=>{
-    //   const res = await axios.get(`${API_URL}/collections/featured`)
+    //   const res = await axios.get(`${REACT_APP_BACKEND_URL}/collections/featured`)
     //   setfeatured(res.data.data)
     // }
     // const getFavourite = async ()=>{
-    //   const res = await axios.get(`${API_URL}/collections/list`)
+    //   const res = await axios.get(`${REACT_APP_BACKEND_URL}/collections/list`)
     //   setCollections(res.data.data)
     // }
     const getMostViewNfts = async ()=>{
-      const res = await axios.get(`${API_URL}/collections/list?status=${status}&item=${item}&price=${price}&categories=${categories}&chain=${chain}&limit=${limit}`)
+      const res = await axios.get(`${REACT_APP_BACKEND_URL}/collections/list?status=${status}&item=${item}&price=${price}&categories=${categories}&chain=${chain}&limit=${limit}`)
       setNfts(res.data.data)
     }
     getMostViewNfts()

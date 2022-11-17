@@ -19,11 +19,11 @@ import Footer from '../components/footer';
 
 const CustomAvatar = ({ address,ensImage, size })=>{
   const [img, setImg] = useState()
-  const API_URL = process.env.API_URL
+  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
 
   useEffect(()=>{
       const getUser = async () =>{
-          const res = await axios.get(`${API_URL}/users/${address}`)
+          const res = await axios.get(`${REACT_APP_BACKEND_URL}/users/${address}`)
           if(res){
             setImg(res.data.data?.profileImage)
           }

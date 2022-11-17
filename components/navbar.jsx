@@ -6,11 +6,11 @@ import LinkTo from './linkto';
 
 const Navbar = () => {
     const { data } = useAccount();
-    const API_URL = process.env.API_URL
+    const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
     
     useEffect(()=>{
         const getUser = async () =>{
-            await axios.post(`${API_URL}/users/get-or-create`, {walletAddress: data?.address})
+            await axios.post(`${REACT_APP_BACKEND_URL}/users/get-or-create`, {walletAddress: data?.address})
             }
         if(data?.address){
             getUser()
