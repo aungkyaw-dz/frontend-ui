@@ -12,8 +12,9 @@ const MarketList = ({lists, contractAddress}) => {
   const contractABI = MarketPlaceABI
   const LeafContractABI = LeafABI
   const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
+  const REACT_APP_ALCHEMY_URL = process.env.REACT_APP_ALCHEMY_URL;
   const marketAddress = process.env.MARKET_ADDRESS;
-  const web3 = createAlchemyWeb3(REACT_APP_BACKEND_URL);
+  const web3 = createAlchemyWeb3(REACT_APP_ALCHEMY_URL);
   const contract = new web3.eth.Contract(contractABI.abi, marketAddress);
   const [selected, setSelected] = useState(null)
   const [status, setStatus]=useState("")

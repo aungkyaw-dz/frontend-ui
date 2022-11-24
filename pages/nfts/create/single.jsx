@@ -36,7 +36,8 @@ const SingleCreate = () => {
 
   const contractAddress = process.env.CONTRACT_ADDRESS;
   const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-  const web3 = createAlchemyWeb3(REACT_APP_BACKEND_URL);
+  const REACT_APP_ALCHEMY_URL = process.env.REACT_APP_ALCHEMY_URL;
+  const web3 = createAlchemyWeb3(REACT_APP_ALCHEMY_URL);
 
 
   useEffect(()=>{

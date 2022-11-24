@@ -17,11 +17,12 @@ const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 const contractABI = MarketPlaceABI
 const LeafContractABI = LeafABI
 const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
+const REACT_APP_ALCHEMY_URL = process.env.REACT_APP_ALCHEMY_URL;
 
 const Approve = ({collectionAddress, collectionId, setApproved}) =>{
 
 
-  const web3 = createAlchemyWeb3(REACT_APP_BACKEND_URL);
+  const web3 = createAlchemyWeb3(REACT_APP_ALCHEMY_URL);
   const contract = new web3.eth.Contract(LeafContractABI.abi, collectionAddress);
   const marketAddress = process.env.MARKET_ADDRESS;
   const { data } = useAccount()
@@ -183,8 +184,7 @@ const NftDetail = () => {
     getNft()
   },[collectionId])
   const contractAddress = process.env.MARKET_ADDRESS;
-  const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-  const web3 = createAlchemyWeb3(REACT_APP_BACKEND_URL);
+  const web3 = createAlchemyWeb3(REACT_APP_ALCHEMY_URL);
   useEffect(()=>{
     window.contract = new web3.eth.Contract(contractABI.abi, contractAddress);//loadContract();
     // const receipt = await web3.eth.getTransactionReceipt({hash: txData.hash})
@@ -355,7 +355,7 @@ const NftDetail = () => {
           {audio && (
             <div className='p-5 w-full'>
               <h1 className='text-lg text-gray-700 p-5 font-bold'>Audio File</h1>
-              <audio controls  width="100">
+              <audio controls  width="100" className='m-auto'>
                 <source src={audio} />
               </audio>
             </div>
