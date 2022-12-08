@@ -107,6 +107,8 @@ const NftDetail = () => {
   const [message, setMessage]=useState("")
   const [listable, setListable] = useState(false)
   const [approved, setApproved] = useState(false)
+  const [ids, setIds] = useState([])
+  const [amounts, setAmounts] = useState([])
 
   const [qunatity, setQuantity] = useState({
     'image': 0,
@@ -133,22 +135,30 @@ const NftDetail = () => {
           const collectionData = res.data.data
           if(data?.address){
             const ownedNfts = (await axios.get(`${alchemyURL}/getNFTs?owner=${data?.address}&contractAddresses[]=${collectionData.address}&withTokenBalances=true`)).data.ownedNfts
-            if(ownedNfts?.length > 0){
-              setListable(true)
+            if(ownedNfts?.length >= collectionData?.nfts?.length){
               let qty = 1
               let balances = []
+              const ids = []
+              const amounts = []
               for(let i=0; i < ownedNfts?.length; i++){
                 const tokenId = parseInt(ownedNfts[i]?.id?.tokenId, 16)
                 const balance = Number(ownedNfts[i]?.balance)||0
                 balances[tokenId] = balance
+                ids.push(tokenId)
+                amounts.push(balance)
                 if(i === 0 ){
                   qty = balance
                 }
                 if(balance<qty){
                   qty= balance
                 }
+                if(qty === collectionData?.nfts[0]?.quantity){
+                  setListable(true)
+                }
                 setMinQty(qty)
               }
+              setIds(ids)
+              setAmounts(amounts)
               setBalances(balances)
             }
           }
@@ -183,6 +193,7 @@ const NftDetail = () => {
     }
     getNft()
   },[collectionId])
+
   const contractAddress = process.env.MARKET_ADDRESS;
   const web3 = createAlchemyWeb3(REACT_APP_ALCHEMY_URL);
   useEffect(()=>{
@@ -222,12 +233,18 @@ const NftDetail = () => {
               const logs = wait?.logs
               const marketId = web3.utils.toNumber(logs[logs.length-2]?.topics[1])
 
-              const resData = await axios.post(`${REACT_APP_BACKEND_URL}/collections/add-list/${collectionId}`, 
+              const resListedData = await axios.post(`${REACT_APP_BACKEND_URL}/collections/add-list/${collectionId}`, 
                 {
                   price: price,
                   walletAddress: data?.address,
                   marketId: marketId,
                   total: total
+                })
+              const resCollectionData = await axios.post(`${REACT_APP_BACKEND_URL}/collections/update/${collectionId}`, 
+                {
+                  listed: 1, 
+                  price: price,
+                  txid: txData?.hash
                 })
               setStatus('complete')
               setMessage('Successfully listed')
@@ -251,32 +268,31 @@ const NftDetail = () => {
   }
 
   useEffect(()=>{
-    const ids = []
-    const amounts = []
-    if(qunatity.image>0){
-      ids.push(0)
-      amounts.push(qunatity.image)
-    }
-    if(qunatity.pdf>0){
-      ids.push(1)
-      amounts.push(qunatity.pdf)
-    }
-    if(qunatity.word>0){
-      ids.push(2)
-      amounts.push(qunatity.word)
-    }
-    if(qunatity.mp3>0){
-      ids.push(3)
-      amounts.push(qunatity.mp3)
-    }
-    if(qunatity.mp4>0){
-      ids.push(4)
-      amounts.push(qunatity.mp4)
-    }
-    if(qunatity.zip>0){
-      ids.push(5)
-      amounts.push(qunatity.zip)
-    }
+    // if(qunatity.image>0){
+    //   ids.push(0)
+    //   amounts.push(qunatity.image)
+    // }
+    // if(qunatity.pdf>0){
+    //   ids.push(1)
+    //   amounts.push(qunatity.pdf)
+    // }
+    // if(qunatity.word>0){
+    //   ids.push(2)
+    //   amounts.push(qunatity.word)
+    // }
+    // if(qunatity.mp3>0){
+    //   ids.push(3)
+    //   amounts.push(qunatity.mp3)
+    // }
+    // if(qunatity.mp4>0){
+    //   ids.push(4)
+    //   amounts.push(qunatity.mp4)
+    // }
+    // if(qunatity.zip>0){
+    //   ids.push(5)
+    //   amounts.push(qunatity.zip)
+    // }
+
     if(method==="add"){
       setTranscationData(window.contract.methods.createMarketItem(collection?.address , ids , amounts , BigNumber.from((price*1000000000000000000).toString())).encodeABI())
     }
@@ -284,7 +300,9 @@ const NftDetail = () => {
 
   const addMarket = () =>{
     setShow(true)
-    setMethod("add")
+    if(listable){
+      setMethod("add")
+    }
   }
 
   const confirm = () =>{
@@ -444,7 +462,7 @@ const NftDetail = () => {
           )}
 
           {
-            (listable&& !approved) &&
+            (collection?.Owner?.walletAddress == data?.address && !approved) &&
             (
               <div className='flex justify-end p-5'>
                 <Approve collectionAddress={collection?.address} collectionId={collection?.collectionId} setApproved={setApproved}/>
@@ -453,7 +471,7 @@ const NftDetail = () => {
           }
             
           {
-            (listable && approved) &&
+            ( approved) &&
             (
               <div className='flex justify-end p-5'>
                 <Button onClick={()=>addMarket()}>Add to Market</Button>
@@ -473,41 +491,44 @@ const NftDetail = () => {
                       {
                         !status && (
                         <div>
-                          <div className="p-2   flex w-100 justify-between items-center">
-                             <p>Image ( {balances[0]||0} - owned )</p> 
-                             <div className='flex w-100 justify-between items-center'>
-                               <Button onClick={()=>minus('image')}>-</Button><p className='p-2'>{qunatity?.image}</p><Button onClick={()=>{plus('image', balances[0])}}>+</Button>
-                             </div>
-                          </div>
-                          <div className="p-2   flex w-100 justify-between items-center">
-                             <p>PDF ( {balances[1]||0} - owned )</p> 
-                             <div className='flex w-100 justify-between items-center'>
-                               <Button onClick={()=>minus('pdf')}>-</Button><p className='p-2'>{qunatity?.pdf}</p><Button onClick={()=>{plus('pdf', balances[2])}}>+</Button>
-                             </div>
-                          </div>
-                          <div className="p-2   flex w-100 justify-between items-center">
-                             <p>WORD/TEXT ( {balances[2]||0} - owned )</p> 
-                             <div className='flex w-100 justify-between items-center'>
-                               <Button onClick={()=>minus('word')}>-</Button><p className='p-2'>{qunatity?.word}</p><Button onClick={()=>{plus('word', balances[3])}}>+</Button>
-                             </div>
-                          </div>
-                          <div className="p-2   flex w-100 justify-between items-center">
-                             <p>MP3 ( {balances[3]||0} - owned )</p> 
-                             <div className='flex w-100 justify-between items-center'>
-                               <Button onClick={()=>minus('mp3')}>-</Button><p className='p-2'>{qunatity?.mp3}</p><Button onClick={()=>{plus('mp3', balances[3])}}>+</Button>
-                             </div>
-                          </div>
-                          <div className="p-2   flex w-100 justify-between items-center">
-                             <p>MP4 ( {balances[4]||0} - owned )</p> 
-                             <div className='flex w-100 justify-between items-center'>
-                               <Button onClick={()=>minus('mp4')}>-</Button><p className='p-2'>{qunatity?.mp4}</p><Button onClick={()=>{plus('mp4', balances[4])}}>+</Button>
-                             </div>
-                          </div>
-                          <div className="p-2 flex w-100 justify-between items-center">
-                             <p>Zip ( {balances[5]||0} - owned )</p> 
-                             <div className='flex w-100 justify-between items-center'>
-                               <Button onClick={()=>minus('zip')}>-</Button><p className='p-2'>{qunatity?.zip}</p><Button onClick={()=>{plus('zip', balances[5])}}>+</Button>
-                             </div>
+                          <div style={{display: "none"}}>
+
+                            <div className="p-2   flex w-100 justify-between items-center">
+                              <p>Image ( {balances[0]||0} - owned )</p> 
+                              <div className='flex w-100 justify-between items-center'>
+                                <Button onClick={()=>minus('image')}>-</Button><p className='p-2'>{qunatity?.image}</p><Button onClick={()=>{plus('image', balances[0])}}>+</Button>
+                              </div>
+                            </div>
+                            <div className="p-2   flex w-100 justify-between items-center">
+                              <p>PDF ( {balances[1]||0} - owned )</p> 
+                              <div className='flex w-100 justify-between items-center'>
+                                <Button onClick={()=>minus('pdf')}>-</Button><p className='p-2'>{qunatity?.pdf}</p><Button onClick={()=>{plus('pdf', balances[2])}}>+</Button>
+                              </div>
+                            </div>
+                            <div className="p-2   flex w-100 justify-between items-center">
+                              <p>WORD/TEXT ( {balances[2]||0} - owned )</p> 
+                              <div className='flex w-100 justify-between items-center'>
+                                <Button onClick={()=>minus('word')}>-</Button><p className='p-2'>{qunatity?.word}</p><Button onClick={()=>{plus('word', balances[3])}}>+</Button>
+                              </div>
+                            </div>
+                            <div className="p-2   flex w-100 justify-between items-center">
+                              <p>MP3 ( {balances[3]||0} - owned )</p> 
+                              <div className='flex w-100 justify-between items-center'>
+                                <Button onClick={()=>minus('mp3')}>-</Button><p className='p-2'>{qunatity?.mp3}</p><Button onClick={()=>{plus('mp3', balances[3])}}>+</Button>
+                              </div>
+                            </div>
+                            <div className="p-2   flex w-100 justify-between items-center">
+                              <p>MP4 ( {balances[4]||0} - owned )</p> 
+                              <div className='flex w-100 justify-between items-center'>
+                                <Button onClick={()=>minus('mp4')}>-</Button><p className='p-2'>{qunatity?.mp4}</p><Button onClick={()=>{plus('mp4', balances[4])}}>+</Button>
+                              </div>
+                            </div>
+                            <div className="p-2 flex w-100 justify-between items-center">
+                              <p>Zip ( {balances[5]||0} - owned )</p> 
+                              <div className='flex w-100 justify-between items-center'>
+                                <Button onClick={()=>minus('zip')}>-</Button><p className='p-2'>{qunatity?.zip}</p><Button onClick={()=>{plus('zip', balances[5])}}>+</Button>
+                              </div>
+                            </div>
                           </div>
                           
                           {listable ? (
@@ -626,7 +647,7 @@ const NftDetail = () => {
                           </div>
                         )
                       }
-                      <MarketList lists={collection.listedItems} contractAddress={collection.address}/>
+                      <MarketList lists={collection.listedItems} contractAddress={collection.address} collectionId={collection.collectionId}/>
                     </Modal.Body>
                   </Modal>
               </div>

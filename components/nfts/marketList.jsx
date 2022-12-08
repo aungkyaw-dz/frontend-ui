@@ -8,7 +8,7 @@ import { BigNumber } from 'ethers';
 import axios from "axios";
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 
-const MarketList = ({lists, contractAddress}) => {
+const MarketList = ({lists, contractAddress, collectionId}) => {
   const contractABI = MarketPlaceABI
   const LeafContractABI = LeafABI
   const REACT_APP_BACKEND_URL = process.env.REACT_APP_BACKEND_URL
@@ -48,6 +48,12 @@ const MarketList = ({lists, contractAddress}) => {
                 const wait  = await data.wait()
                 if(wait){
                   const resData = await axios.post(`${REACT_APP_BACKEND_URL}/lists/update/${selected.listId}`, {status: "SOLDOUT"})
+                  const resCollectionData = await axios.post(`${REACT_APP_BACKEND_URL}/collections/update/${collectionId}`, 
+                  { 
+                    listed: false,
+                    price: 0,
+                    owner: data?.address
+                  })
                   setStatus('complete')
                   setMessage('Yay, You bought the collection')
 
@@ -116,7 +122,7 @@ const MarketList = ({lists, contractAddress}) => {
             <tr>
               <th className="w-48 text-left">Price</th>
               <th className="w-96">Owner Address</th>
-              <th className="w-48">Total Items</th>
+              {/* <th className="w-48">Total Items</th> */}
               <th className="w-48">Status</th>
               <th className="w-48">Listed Date</th>
               <th></th>
@@ -128,7 +134,7 @@ const MarketList = ({lists, contractAddress}) => {
               <tr key={index}>
                 <td className="text-left">{item.price} ETH</td>
                 <td className="text-center">{item.Creator.username}</td>
-                <td className="text-center">{item.total}</td>
+                {/* <td className="text-center">{item.total}</td> */}
                 <td className="text-center">{item.status}</td>
                 <td className="text-center">{new Date(item.createdAt).toLocaleDateString()}</td>
                 <td>

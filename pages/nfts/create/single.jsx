@@ -104,7 +104,7 @@ const SingleCreate = () => {
             alert("Please Connect Wallet")
           }
         }else{
-          alert("Please Input All Files")
+          alert("Please Input Image File First")
         }
       }catch(err){
         setStatus("error")
@@ -114,18 +114,18 @@ const SingleCreate = () => {
     validationSchema: yup.object({
       name: yup.string().trim().required('Name is required'),
       description: yup.string().trim().required('Description is required'),
-      collectionName: yup.string().trim().required('Collection Name is required'),
-      collectionDesc: yup.string().trim().required('Collection description is required'),
+      // collectionName: yup.string().trim().required('Collection Name is required'),
+      // collectionDesc: yup.string().trim().required('Collection description is required'),
       facebook: yup.string().trim().matches(re, 'URL is not valid'),
       discord: yup.string().trim().matches(re, 'URL is not valid'),
     }),
   });
 
   useEffect(()=>{
-    if(img && mp3 && mp4 && pdf && word && word ){
+    if(img){
       setFilesChecked(true)
     }
-  },[img, mp3, mp4, pdf, word, zip])
+  },[img])
 
 
   const transactionParameters = {
@@ -605,7 +605,7 @@ const SingleCreate = () => {
               <option value="create">Create New Collection</option>
           </select>
         </div>
-        <div className="mb-4 ">
+        <div className="mb-4" style={{display: 'none'}}>
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="collectionName">
             Collection Name
           </label>
@@ -618,7 +618,7 @@ const SingleCreate = () => {
             placeholder="Collection name"/>
             <p className='block text-red-700 text-sm mb-2'>{formik.errors.collectionName}</p>
         </div>
-        <div className="mb-4 ">
+        <div className="mb-4 " style={{display: 'none'}}>
           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="collectionDesc">
             Collection Description
           </label>
