@@ -175,6 +175,7 @@ const SingleCreate = () => {
   const { data: wait } = useWaitForTransaction({
     hash: txData?.hash,
   })
+
   useEffect(()=>{
     if(metaData && !txData){
       try{

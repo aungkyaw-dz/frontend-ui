@@ -462,7 +462,7 @@ const NftDetail = () => {
           )}
 
           {
-            (collection?.Owner?.walletAddress == data?.address && !approved) &&
+            ((collection?.Owner?.walletAddress == data?.address && !approved)) &&
             (
               <div className='flex justify-end p-5'>
                 <Approve collectionAddress={collection?.address} collectionId={collection?.collectionId} setApproved={setApproved}/>
@@ -471,7 +471,7 @@ const NftDetail = () => {
           }
             
           {
-            ( approved) &&
+            (listable && approved) &&
             (
               <div className='flex justify-end p-5'>
                 <Button onClick={()=>addMarket()}>Add to Market</Button>

@@ -20,12 +20,12 @@ const MarketList = ({lists, contractAddress, collectionId}) => {
   const [status, setStatus]=useState("")
   const [message, setMessage]=useState("")
 
-  const { data } = useAccount()
+  const { data:account } = useAccount()
   const { connect, connectors, activeConnector } = useConnect()
 
   const transactionParameters = {
     to: marketAddress,
-    from: data?.address,
+    from: account?.address,
     data: selected? contract.methods.createMarketSale(contractAddress , selected?.marketId ).encodeABI():"",
     value: selected ? BigNumber.from((selected.price*1000000000000000000).toString()):`0x${(0).toString(16)}`,
     gasPrice: 35000000000,
@@ -52,8 +52,9 @@ const MarketList = ({lists, contractAddress, collectionId}) => {
                   { 
                     listed: false,
                     price: 0,
-                    owner: data?.address
+                    owner: account?.address
                   })
+                  console.log(resCollectionData)
                   setStatus('complete')
                   setMessage('Yay, You bought the collection')
 
@@ -140,7 +141,7 @@ const MarketList = ({lists, contractAddress, collectionId}) => {
                 <td>
                   {
                     item.status ==='LISTING' && (
-                      <Button disabled={data?.address == item.Creator.walletAddress} onClick={()=>handleBuy(item)}>Buy</Button>
+                      <Button disabled={account?.address == item.Creator.walletAddress} onClick={()=>handleBuy(item)}>Buy</Button>
                     )
                   }
                 </td>
