@@ -27,7 +27,7 @@ const MarketList = ({lists, contractAddress, collectionId}) => {
     to: marketAddress,
     from: account?.address,
     data: selected? contract.methods.createMarketSale(contractAddress , selected?.marketId ).encodeABI():"",
-    value: selected ? BigNumber.from((selected.price*1000000000000000000).toString()):`0x${(0).toString(16)}`,
+    value: selected ? BigNumber.from(web3.utils.toWei((selected.price).toString(), 'ether')):`0x${(0).toString(16)}`,
     gasPrice: 35000000000,
   };
 
