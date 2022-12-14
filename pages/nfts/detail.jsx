@@ -292,7 +292,7 @@ const NftDetail = () => {
     //   ids.push(5)
     //   amounts.push(qunatity.zip)
     // }
-    const priceValue = web3.utils.toWei((price).toString(), 'ether')
+    const priceValue = web3.utils.toWei((price||0).toString(), 'ether')
     if(method==="add"){
       setTranscationData(window.contract.methods.createMarketItem(collection?.address , ids , amounts , BigNumber.from(priceValue)).encodeABI())
     }
