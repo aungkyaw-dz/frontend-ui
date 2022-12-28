@@ -19,6 +19,7 @@ export default function Gallery({nfts, name, limit, changeLimit}) {
                   <div className="w-full h-full object-center object-cover "
                   >
                     <img
+                        className="m-auto "
                         src={nft.logo}
                         alt={nft.name}
                       />  
