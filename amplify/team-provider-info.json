@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-nftmarketplace-dev-145240-authRole",
+      "UnauthRoleArn": "arn:aws:iam::946609397632:role/amplify-nftmarketplace-dev-145240-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::946609397632:role/amplify-nftmarketplace-dev-145240-authRole",
+      "Region": "ap-southeast-1",
+      "DeploymentBucketName": "amplify-nftmarketplace-dev-145240-deployment",
+      "UnauthRoleName": "amplify-nftmarketplace-dev-145240-unauthRole",
+      "StackName": "amplify-nftmarketplace-dev-145240",
+      "StackId": "arn:aws:cloudformation:ap-southeast-1:946609397632:stack/amplify-nftmarketplace-dev-145240/46cf3930-9317-11ed-a106-0266b067e456",
+      "AmplifyAppId": "d1btoqzols9sja"
+    },
+    "categories": {
+      "hosting": {
+        "S3AndCloudFront": {}
+      }
+    }
+  }
+}
