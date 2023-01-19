@@ -40,7 +40,7 @@ const CollectionDetail = () => {
       <div className="container grid md:grid-cols-3 gap-4">
         {
           collections && collections?.map((collection)=>(
-            <LinkTo key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`/nfts/${collection.collectionId}`}>
+            <LinkTo key={collection?.collectionId} className="group relative border-2 border-slate-400 p-2 rounded-md" href={`/nfts/detail/${collection.collectionId}`}>
               <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer overflow-hidden">
               <div className="flex">
                 <div className="w-32 h-32 p-5">

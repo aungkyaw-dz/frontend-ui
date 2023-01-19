@@ -206,7 +206,7 @@ const SingleCreate = () => {
           if(!resData.error){
             setStatus('complete')
             setMsg('Transcation is Complete')
-            window.location.href = `/nfts/${collectionId}`
+            window.location.href = `/nfts/detail/${collectionId}`
           }
         }
         updateCollection()
@@ -651,7 +651,7 @@ const SingleCreate = () => {
             )}
           {ready && (
             <div className='underline p-2 text-blue-600 hover:text-blue-800 visited:text-purple-600'>
-              <LinkTo  href={`/nfts/${nftId}`}>Please check your nft on here</LinkTo>
+              <LinkTo  href={`/nfts/detail/${nftId}`}>Please check your nft on here</LinkTo>
             </div>
           )}
         </div> */}

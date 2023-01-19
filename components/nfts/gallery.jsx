@@ -12,7 +12,7 @@ export default function Gallery({nfts, name, limit, changeLimit}) {
         {
           nfts && nfts?.map((nft)=>(
             <div key={nft?.collectionId}>
-            <LinkTo key={nft?.nftId} className="group relative  rounded-md" href={`nfts/${nft.collectionId}`}>
+            <LinkTo key={nft?.nftId} className="group relative  rounded-md" href={`nfts/detail/${nft.collectionId}`}>
               <div className="group relative border-2 border-slate-400 p-2 rounded-md shadow-md cursor-pointer overflow-hidden">
               <div className="w-full h-60 overflow-hidden">
                 {nft.logo ? 
