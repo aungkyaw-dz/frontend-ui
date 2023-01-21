@@ -7,7 +7,7 @@ const Aung = () => {
     console.log(nftId)
     localStorage.setItem('nftId',nftId)
     if(nftId){
-      window.location.href = '/nfts/details'
+      window.location.href = '/nfts/detail'
     }
   },[])
   return(
